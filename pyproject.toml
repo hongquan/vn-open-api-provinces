@@ -6,12 +6,13 @@ authors = ["Nguyễn Hồng Quân <ng.hong.quan@gmail.com>"]
 license = "GPL-3.0-or-later"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.6.1"
 fastapi = "^0.66.0"
 pydantic = "^1.8.2"
 Logbook = "^1.5.3"
-vietnam-provinces = "^0.4.1"
+vietnam-provinces = "^0.4.2"
 uvicorn = "^0.14.0"
+dataclasses = { version = "^0.8", markers = "python_version < '3.7'" }
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
