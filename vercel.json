@@ -1,0 +1,34 @@
+{
+  "public": true,
+  "functions": {
+    "api/main.py": {
+      "excludeFiles": "api/_public"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/api/main.py"
+    },
+    {
+      "source": "/api/",
+      "destination": "/api/main.py"
+    },
+    {
+      "source": "/redoc",
+      "destination": "/api/main.py"
+    },
+    {
+      "source": "/docs",
+      "destination": "/api/main.py"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "/api/main.py"
+    },
+    {
+      "source": "/static/:match*",
+      "destination": "/api/main.py"
+    }
+  ]
+}
