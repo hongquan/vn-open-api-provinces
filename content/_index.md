@@ -26,6 +26,9 @@ Content-Type: application/json
 [
   {
     "code": 1,
+    "division_type": "thành phố trung ương",
+    "name": "Thành phố Hà Nội",
+    "phone_code": 24,
     "codename": "thanh_pho_ha_noi",
     "districts": [
       {
