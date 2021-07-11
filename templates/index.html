@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang='vi'>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width,initial-scale=1.0'>
+    <meta name='description' content='Online tool to convert cURL command to HTTPie'>
+    <meta name='keywords' content='api, test, tool, cli, curl, httpie, http, python'>
+    <meta property='og:title' content='Online tool to convert cURL command to HTTPie'>
+    <meta property='og:image' content='https://www.nicepng.com/png/full/6-60631_pie-png.png'>
+    <link rel='icon' href="{{ get_url(path='img/map.svg')|safe }}">
+    <link rel='stylesheet' href="{{ get_url(path='vendor/tailwind.css?v=2.2.4')|safe }}">
+    <link rel='stylesheet' href='https://unpkg.com/@highlightjs/cdn-assets@11.0.1/styles/a11y-dark.min.css'>
+    <title>{{ section.title }}</title>
+  </head>
+  <body class='min-h-screen flex flex-col'>
+    <header class='text-gray-600 body-font'>
+      <div class='container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center'>
+        <a class='flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0'>
+          <img src="{{ get_url(path='img/voa.svg')|safe }}" class='w-10 h-10'>
+          <span class='ml-3 text-xl'>Province</span>
+        </a>
+        <nav class='md:ml-auto flex flex-wrap items-center text-base justify-center'>
+          <a href='/redoc' class='mr-5 hover:text-gray-900'>Tài liệu</a>
+          <a href='https://github.com/hongquan/vn-open-api-provinces/' class='mr-5 hover:text-gray-900'>Mã nguồn</a>
+        </nav>
+      </div>
+    </header>
+
+    <section class='text-gray-600 body-font flex-1'>
+      <div class='container mx-auto flex px-5 items-center justify-center flex-col'>
+        <img class='lg:w-2/6 md:w-3/6 w-5/6 mb-10 object-cover object-center rounded' alt='hero' src="{{ get_url(path='img/vn-07.svg')|safe }}">
+        <div class='text-center lg:w-2/3 w-full'>
+          <h1 class='title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900'>Tỉnh thành Việt Nam</h1>
+          <p class='mb-8 leading-relaxed'>HTTP API cho phép lấy danh sách tỉnh thành, quận huyện, phường xã Việt Nam.</p>
+          <div class='flex justify-center'>
+            <a href='/redoc' class='inline-flex text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg'>Tài liệu</a>
+            <a href='https://httpie.io/run' class='ml-4 inline-flex text-gray-700 bg-gray-100 border-0 py-2 px-6 focus:outline-none hover:bg-gray-200 rounded text-lg'>Thử online</a>
+          </div>
+        </div>
+      </div>
+      <div class='prose mx-auto mt-8'>{{ section.content|safe }}</div>
+    </section>
+
+    <footer class='text-gray-600 body-font'>
+      <div class='container px-5 py-8 mx-auto flex items-center sm:flex-row flex-col'>
+        <a class='flex title-font font-medium items-center md:justify-start justify-center text-gray-900'>
+          <img src="{{ get_url(path='img/voa.svg')|safe }}" class='w-10 h-10'>
+          <span class='ml-3 text-xl'>Vietnam Open API</span>
+        </a>
+        <div class='text-sm text-gray-500 sm:ml-4 sm:pl-4 sm:border-l-2 sm:border-gray-200 sm:py-2 sm:mt-0 mt-4'>
+          <p>© 2021 Nguyễn Hồng Quân —<a href='https://github.com/hongquan/' class='text-gray-600 ml-1' rel='noopener noreferrer' target='_blank'>@hongquan</a></p>
+          <p>Icon from <a href='https://www.flaticon.com/'>flaticon</a></p>
+          <p>Vietnam map picture from <a href='https://vemaps.com/vietnam/vn-07'>vemaps.com</a></p>
+        </div>
+        <span class='inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start'>
+          <a class='text-gray-500' href='https://quan.hoabinh.vn'>
+            <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor' class='w-5 h-5'>
+              <path d='M21.41,8.64s0,0,0-.05a10,10,0,0,0-18.78,0s0,0,0,.05a9.86,9.86,0,0,0,0,6.72s0,0,0,.05a10,10,0,0,0,18.78,0s0,0,0-.05a9.86,9.86,0,0,0,0-6.72ZM4.26,14a7.82,7.82,0,0,1,0-4H6.12a16.73,16.73,0,0,0,0,4Zm.82,2h1.4a12.15,12.15,0,0,0,1,2.57A8,8,0,0,1,5.08,16Zm1.4-8H5.08A8,8,0,0,1,7.45,5.43,12.15,12.15,0,0,0,6.48,8ZM11,19.7A6.34,6.34,0,0,1,8.57,16H11ZM11,14H8.14a14.36,14.36,0,0,1,0-4H11Zm0-6H8.57A6.34,6.34,0,0,1,11,4.3Zm7.92,0h-1.4a12.15,12.15,0,0,0-1-2.57A8,8,0,0,1,18.92,8ZM13,4.3A6.34,6.34,0,0,1,15.43,8H13Zm0,15.4V16h2.43A6.34,6.34,0,0,1,13,19.7ZM15.86,14H13V10h2.86a14.36,14.36,0,0,1,0,4Zm.69,4.57a12.15,12.15,0,0,0,1-2.57h1.4A8,8,0,0,1,16.55,18.57ZM19.74,14H17.88A16.16,16.16,0,0,0,18,12a16.28,16.28,0,0,0-.12-2h1.86a7.82,7.82,0,0,1,0,4Z'/>
+            </svg>
+          </a>
+          <a class='ml-3 text-gray-500' href='https://facebook.com/ng.hong.quan'>
+            <svg fill='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' class='w-5 h-5' viewBox='0 0 24 24'>
+              <path d='M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z'></path>
+            </svg>
+          </a>
+          <a class='ml-3 text-gray-500' href='https://www.linkedin.com/in/bachkhois'>
+            <svg fill='currentColor' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='0' class='w-5 h-5' viewBox='0 0 24 24'>
+              <path stroke='none' d='M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z'></path>
+              <circle cx='4' cy='4' r='2' stroke='none'></circle>
+            </svg>
+          </a>
+        </span>
+      </div>
+    </footer>
+
+    {% if get_env(name='TRACKING', default='') != '' %}
+      <!-- Matomo -->
+      <script type='text/javascript'>
+        var _paq = window._paq || [];
+        /* tracker methods like 'setCustomDimension' should be called before 'trackPageView' */
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+          var u='https://matomo.quan.hoabinh.vn/';
+          _paq.push(['setTrackerUrl', u+'matomo.php']);
+          _paq.push(['setSiteId', '5']);
+          var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+          g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+      </script>
+      <!-- End Matomo Code -->
+    {% endif %}
+  </body>
+</html>

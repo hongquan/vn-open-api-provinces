@@ -1,0 +1,18 @@
+{
+  "name": "front",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build-tailwind": "NODE_ENV=production npx tailwindcss build -o ../static/vendor/tailwind.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/aspect-ratio": "^0.2.1",
+    "@tailwindcss/forms": "^0.3.3",
+    "@tailwindcss/typography": "^0.4.1",
+    "autoprefixer": "^10.3.0",
+    "cssnano": "^5.0.6",
+    "tailwindcss": "^2.2.4"
+  }
+}

@@ -7,6 +7,7 @@ from typing import List
 from logbook import Logger
 from fastapi import FastAPI, APIRouter, Query
 from fastapi.responses import FileResponse
+from pydantic import BaseSettings
 
 from vietnam_provinces import NESTED_DIVISIONS_JSON_PATH
 from vietnam_provinces.enums import ProvinceEnum, DistrictEnum
@@ -14,13 +15,14 @@ from vietnam_provinces.enums import ProvinceEnum, DistrictEnum
 from .schema import ProvinceResponse
 
 
+class Settings(BaseSettings):
+    tracking: bool = False
+
+
 logger = Logger(__name__)
-
-
 app = FastAPI(title='Vietnam Provinces online API')
-
-
 api = APIRouter()
+settings = Settings()
 
 
 @api.get('/', response_model=List[ProvinceResponse])
