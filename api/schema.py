@@ -16,7 +16,13 @@ _EXAMPLE_WARD = {
 }
 
 
-@dataclass
+class WardConfig:
+    schema_extra = {
+        'example': _EXAMPLE_WARD
+    }
+
+
+@dataclass(config=WardConfig)
 class Ward:
     name: str
     code: int
@@ -35,7 +41,13 @@ _EXAMPLE_DISTRICT = {
 }
 
 
-@dataclass
+class DistrictConfig:
+    schema_extra = {
+        'example': _EXAMPLE_DISTRICT
+    }
+
+
+@dataclass(config=DistrictConfig)
 class District(dataclass(_District)):
     wards: List[Ward] = dcfield(default_factory=list)
 
@@ -56,7 +68,7 @@ class ProvinceResponse(BaseModel):
     division_type: VietNamDivisionType
     codename: str
     phone_code: int
-    districts: List[District] = Field(default=[], example=[_EXAMPLE_DISTRICT])
+    districts: List[District] = Field(default=[])
 
     class Config:
         schema_extra = {

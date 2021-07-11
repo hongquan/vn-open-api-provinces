@@ -14,7 +14,7 @@ from vietnam_provinces import NESTED_DIVISIONS_JSON_PATH
 from vietnam_provinces.enums import ProvinceEnum, DistrictEnum
 from vietnam_provinces.enums.wards import WardEnum
 
-from .schema import ProvinceResponse
+from .schema import ProvinceResponse, District as DistrictResponse, Ward as WardResponse
 
 
 class Settings(BaseSettings):
@@ -65,6 +65,29 @@ async def get_province(code: int,
             districts[k]['wards'] = tuple(asdict(w.value) for w in group)
     response['districts'] = tuple(districts.values())
     return response
+
+
+@api.get('/d/{code}', response_model=DistrictResponse)
+async def get_district(code: int,
+                       depth: int = Query(1, ge=1, le=2, title='Show down to subdivisions',
+                                          description='2: show wards')):
+    try:
+        district = DistrictEnum[f'D_{code}'].value
+    except KeyError:
+        raise HTTPException(404, detail='invalid-district-code')
+    response = asdict(district)
+    if depth == 2:
+        response['wards'] = tuple(asdict(w.value) for w in WardEnum if w.value.district_code == code)
+    return response
+
+
+@api.get('/w/{code}', response_model=WardResponse)
+async def get_ward(code: int):
+    try:
+        ward = WardEnum[f'W_{code}'].value
+    except KeyError:
+        raise HTTPException(404, detail='invalid-ward-code')
+    return asdict(ward)
 
 
 app.include_router(api, prefix='/api')
