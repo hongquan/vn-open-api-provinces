@@ -7,7 +7,7 @@
     <meta name='description' content='Online API for Viet Nam administrative divisions'>
     <meta name='keywords' content='api, online, tool, vietnam, open, data, province, administrative, divisions'>
     <meta property='og:title' content='Online API for Viet Nam administrative divisions'>
-    <meta property='og:image' content="{{ get_url(path='img/vn-map.png')|safe }}">
+    <meta property='og:image' content="{{ get_url(path='img/vn-hsts.png')|safe }}">
     <link rel='icon' href="{{ get_url(path='img/map.svg')|safe }}">
     <link rel='stylesheet' href="{{ get_url(path='vendor/tailwind.css?v=2.2.4')|safe }}">
     <title>{{ section.title }}</title>
@@ -28,7 +28,7 @@
 
     <section class='text-gray-600 body-font flex-1'>
       <div class='container mx-auto flex px-5 items-center justify-center flex-col'>
-        <img class='lg:w-2/6 md:w-3/6 w-5/6 mb-10 object-cover object-center rounded' alt='hero' src="{{ get_url(path='img/vn-07.svg')|safe }}">
+        <img class='lg:w-2/6 md:w-3/6 w-5/6 mb-10 object-cover object-center rounded' alt='hero' src="{{ get_url(path='img/vn-hsts.svg')|safe }}">
         <div class='text-center lg:w-2/3 w-full'>
           <h1 class='title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900'>Tỉnh thành Việt Nam</h1>
           <p class='mb-8 leading-relaxed'>API HTTP cho phép lấy danh sách tỉnh thành, quận huyện, phường xã Việt Nam. Một ứng dụng của thư viện <a href='https://pypi.org/project/vietnam-provinces/' class='underline text-blue-700'>VietnamProvinces</a>.</p>
@@ -38,7 +38,7 @@
           </div>
         </div>
       </div>
-      <div class='prose mx-auto mt-8'>{{ section.content|safe }}</div>
+      <div class='prose container mx-auto mt-8 px-2'>{{ section.content|safe }}</div>
     </section>
 
     <footer class='text-gray-600 body-font'>
@@ -49,8 +49,8 @@
         </a>
         <div class='text-sm text-gray-500 sm:ml-4 sm:pl-4 sm:border-l-2 sm:border-gray-200 sm:py-2 sm:mt-0 mt-4'>
           <p>© 2021 Nguyễn Hồng Quân —<a href='https://github.com/hongquan/' class='text-gray-600 ml-1' rel='noopener noreferrer' target='_blank'>@hongquan</a></p>
-          <p>Icon được cho bởi <a href='https://www.flaticon.com/'>flaticon</a></p>
-          <p>Hình bản đồ Vietnam được cho bởi <a href='https://vemaps.com/vietnam/vn-07'>vemaps.com</a></p>
+          <p>Icon được cho bởi <a href='https://www.flaticon.com/'>flaticon</a>.</p>
+          <p>Hình bản đồ Vietnam được cho bởi <a href='https://vemaps.com/vietnam/vn-07'>vemaps.com</a> (với chút thay đổi).</p>
         </div>
         <span class='inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start'>
           <a class='text-gray-500' href='https://quan.hoabinh.vn'>
