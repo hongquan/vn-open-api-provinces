@@ -29,7 +29,7 @@ middleware.register(app)
 
 
 @api.get('/', response_model=List[ProvinceResponse])
-async def show_all_provinces(depth: int = Query(1, ge=1, le=3,
+async def show_all_divisions(depth: int = Query(1, ge=1, le=3,
                                                 title='Show down to subdivisions',
                                                 description='2: show districts; 3: show wards')):
     if depth >= 3:
@@ -41,6 +41,11 @@ async def show_all_provinces(depth: int = Query(1, ge=1, le=3,
             p['districts'] = tuple(asdict(d.value) for d in group)
             provinces.append(p)
         return provinces
+    return tuple(asdict(p.value) for p in ProvinceEnum)
+
+
+@api.get('/p/', response_model=List[ProvinceResponse])
+async def list_provinces():
     return tuple(asdict(p.value) for p in ProvinceEnum)
 
 
@@ -67,6 +72,11 @@ async def get_province(code: int,
     return response
 
 
+@api.get('/d/', response_model=List[DistrictResponse])
+async def list_districts():
+    return tuple(asdict(d.value) for d in DistrictEnum)
+
+
 @api.get('/d/{code}', response_model=DistrictResponse)
 async def get_district(code: int,
                        depth: int = Query(1, ge=1, le=2, title='Show down to subdivisions',
@@ -79,6 +89,11 @@ async def get_district(code: int,
     if depth == 2:
         response['wards'] = tuple(asdict(w.value) for w in WardEnum if w.value.district_code == code)
     return response
+
+
+@api.get('/w/', response_model=List[WardResponse])
+async def list_wards():
+    return tuple(asdict(w.value) for w in WardEnum)
 
 
 @api.get('/w/{code}', response_model=WardResponse)
