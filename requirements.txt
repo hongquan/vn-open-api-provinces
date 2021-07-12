@@ -1,3 +1,4 @@
+aiofiles==0.7.0; python_version >= "3.6" and python_version < "4.0"
 asgiref==3.4.1; python_version >= "3.6"
 click==8.0.1; python_version >= "3.6"
 colorama==0.4.4; python_version >= "3.6" and python_full_version < "3.0.0" and platform_system == "Windows" or platform_system == "Windows" and python_version >= "3.6" and python_full_version >= "3.5.0"
