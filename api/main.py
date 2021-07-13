@@ -5,7 +5,7 @@ from collections import deque
 from typing import List, FrozenSet, Dict, Any
 
 from logbook import Logger
-from fastapi import FastAPI, APIRouter, Query, HTTPException
+from fastapi import FastAPI, APIRouter, Query, HTTPException, Request
 from fastapi.responses import FileResponse
 from pydantic import BaseSettings
 from fastapi_rfc7807 import middleware
@@ -19,6 +19,7 @@ from .schema import ProvinceResponse, District as DistrictResponse, Ward as Ward
 
 class Settings(BaseSettings):
     tracking: bool = False
+    cdn_cache_interval: int = 30
 
 
 logger = Logger(__name__)
@@ -106,3 +107,11 @@ async def get_ward(code: int):
 
 
 app.include_router(api, prefix='/api')
+
+
+@app.middleware('http')
+async def guide_cdn_cache(request: Request, call_next):
+    response = await call_next(request)
+    # Ref: https://vercel.com/docs/edge-network/headers#cache-control-header
+    response.headers['Cache-Control'] = f's-maxage={settings.cdn_cache_interval}, stale-while-revalidate'
+    return response

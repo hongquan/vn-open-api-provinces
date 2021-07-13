@@ -20,8 +20,9 @@ Response:
 
 ```http
 HTTP/1.1 200 OK
-Content-Encoding: gzip
+Connection: keep-alive
 Content-Type: application/json
+Transfer-Encoding: chunked
 
 [
   {
