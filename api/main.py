@@ -62,7 +62,8 @@ async def list_provinces():
 
 @api.get('/p/search/', response_model=SearchResults)
 async def search_provinces(q: str = SearchQuery):
-    return repo.search_province(q)
+    res = repo.search_province(q)
+    return res
 
 
 @api.get('/p/{code}', response_model=ProvinceResponse)
@@ -142,8 +143,7 @@ async def guide_cdn_cache(request: Request, call_next):
     return response
 
 
-@app.on_event('startup')
-async def build_search_index():
-    logger.debug('To build search index')
-    repo.build_index()
-    logger.debug('Ready to search')
+# Vercel ASGI server doesn't support "startup" event, so we have to run this code in global
+logger.debug('To build search index')
+repo.build_index()
+logger.debug('Ready to search')

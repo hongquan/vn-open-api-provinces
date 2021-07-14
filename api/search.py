@@ -41,6 +41,7 @@ class Searcher:
 
     def search(self, query: str, level: DivisionLevel = DivisionLevel.P) -> Tuple[SearchResult, ...]:
         if not self.ready:
+            logger.warning('Index building does not finished yet!')
             return []
         if level == DivisionLevel.P:
             lresults: List[Dict[str, Any]] = self.province_index.search(query)
