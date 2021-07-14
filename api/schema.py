@@ -86,7 +86,9 @@ class ProvinceResponse(BaseModel):
 class SearchResult(BaseModel):
     name: str
     code: int
-    matches: Dict[str, Tuple[int, int]]
+    matches: Dict[str, Tuple[int, int]] = Field({}, title='Matched words and their positions in name.',
+                                                description='This info can help client side highlight '
+                                                'the result in display.')
     score: int
 
     class Config:

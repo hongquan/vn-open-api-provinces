@@ -4,7 +4,28 @@ module.exports = {
   ],
   darkMode: false, // or 'media' or 'class'
   theme: {
-    extend: {},
+    extend: {
+      typography: {
+        DEFAULT: {
+          css: {
+            p: {
+              marginTop: '0.75em',
+              marginBottom: '0.75em',
+            },
+            pre: {
+              marginTop: '1em',
+              marginBottom: '1em',
+              lineHeight: 1.5,
+              fontSize: '0.75em',
+            },
+            img: {
+              marginTop: '1em',
+              marginBottom: '1em',
+            },
+          }
+        }
+      }
+    },
   },
   variants: {
     extend: {},
