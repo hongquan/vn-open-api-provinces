@@ -198,6 +198,17 @@ test = ["pytest-cov (>=2.6)", "pytest (>4.0)"]
 zmq = ["pyzmq"]
 
 [[package]]
+name = "lunr"
+version = "0.6.0"
+description = "A Python implementation of Lunr.js"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.extras]
+languages = ["nltk (>=3.2.5,<3.5)"]
+
+[[package]]
 name = "mccabe"
 version = "0.6.1"
 description = "McCabe checker, plugin for flake8"
@@ -449,7 +460,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.1"
-content-hash = "f0b2e4741f3e5c84392da6a51b8982ab1cf54b33048c91eff38b9697d002edc6"
+content-hash = "47b6793bbde4ba6a55a7fd184583064f3b890655e817dad1dad2613fdb120d5b"
 
 [metadata.files]
 aiofiles = [
@@ -526,6 +537,10 @@ logbook = [
     {file = "Logbook-1.5.3-cp37-cp37m-win32.whl", hash = "sha256:8f76a2e7b1f72595f753228732f81ce342caf03babc3fed6bbdcf366f2f20f18"},
     {file = "Logbook-1.5.3-cp37-cp37m-win_amd64.whl", hash = "sha256:0cf2cdbfb65a03b5987d19109dacad13417809dcf697f66e1a7084fb21744ea9"},
     {file = "Logbook-1.5.3.tar.gz", hash = "sha256:66f454ada0f56eae43066f604a222b09893f98c1adc18df169710761b8f32fe8"},
+]
+lunr = [
+    {file = "lunr-0.6.0-py2.py3-none-any.whl", hash = "sha256:1fcee59dcf063841f0f2d50fc46e8b1b45e3a249c9fae354849b2b4f8ec015b4"},
+    {file = "lunr-0.6.0.tar.gz", hash = "sha256:2c6311d1df06e0990ad7cb5fed55470a90432cf90fe636fff5b63aeea99aca80"},
 ]
 mccabe = [
     {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},

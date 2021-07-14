@@ -1,10 +1,17 @@
-from typing import List
+from enum import Enum
+from typing import List, Dict, Tuple
 from dataclasses import field as dcfield
 
 from pydantic import BaseModel, Field
 from pydantic.dataclasses import dataclass
 
 from vietnam_provinces.base import VietNamDivisionType, District as _District
+
+
+class DivisionLevel(str, Enum):
+    P = 'province'
+    D = 'district'
+    W = 'ward'
 
 
 _EXAMPLE_WARD = {
@@ -73,4 +80,23 @@ class ProvinceResponse(BaseModel):
     class Config:
         schema_extra = {
             'example': _EXAMPLE_PROVINCE
+        }
+
+
+class SearchResult(BaseModel):
+    name: str
+    code: int
+    matches: Dict[str, Tuple[int, int]]
+    score: int
+
+    class Config:
+        schema_extra = {
+            'example': {
+                'name': 'Thị xã Phú Mỹ',
+                'code': 754,
+                'matches': {
+                    'mỹ': [11, 13]
+                },
+                'score': 3
+            }
         }

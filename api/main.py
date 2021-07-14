@@ -5,6 +5,7 @@ from collections import deque
 from typing import List, FrozenSet, Dict, Any
 
 from logbook import Logger
+from logbook.more import ColorizedStderrHandler
 from fastapi import FastAPI, APIRouter, Query, HTTPException, Request
 from fastapi.responses import FileResponse
 from pydantic import BaseSettings
@@ -14,7 +15,8 @@ from vietnam_provinces import NESTED_DIVISIONS_JSON_PATH
 from vietnam_provinces.enums import ProvinceEnum, DistrictEnum
 from vietnam_provinces.enums.wards import WardEnum
 
-from .schema import ProvinceResponse, District as DistrictResponse, Ward as WardResponse
+from .schema import ProvinceResponse, District as DistrictResponse, Ward as WardResponse, SearchResult
+from .search import Searcher
 
 
 class Settings(BaseSettings):
@@ -27,6 +29,14 @@ app = FastAPI(title='Vietnam Provinces online API')
 api = APIRouter()
 settings = Settings()
 middleware.register(app)
+repo = Searcher()
+ColorizedStderrHandler().push_application()
+
+
+SearchResults = List[SearchResult]
+SearchQuery = Query(..., title='Query string for search', example='Hiền Hòa',
+                    description='Follow [lunr](https://lunr.readthedocs.io/en/latest/usage.html#using-query-strings)'
+                    ' syntax.')
 
 
 @api.get('/', response_model=List[ProvinceResponse])
@@ -48,6 +58,11 @@ async def show_all_divisions(depth: int = Query(1, ge=1, le=3,
 @api.get('/p/', response_model=List[ProvinceResponse])
 async def list_provinces():
     return tuple(asdict(p.value) for p in ProvinceEnum)
+
+
+@api.get('/p/search/', response_model=SearchResults)
+async def search_provinces(q: str = SearchQuery):
+    return repo.search_province(q)
 
 
 @api.get('/p/{code}', response_model=ProvinceResponse)
@@ -78,6 +93,11 @@ async def list_districts():
     return tuple(asdict(d.value) for d in DistrictEnum)
 
 
+@api.get('/d/search/', response_model=SearchResults)
+async def search_districts(q: str = SearchQuery):
+    return repo.search_district(q)
+
+
 @api.get('/d/{code}', response_model=DistrictResponse)
 async def get_district(code: int,
                        depth: int = Query(1, ge=1, le=2, title='Show down to subdivisions',
@@ -95,6 +115,11 @@ async def get_district(code: int,
 @api.get('/w/', response_model=List[WardResponse])
 async def list_wards():
     return tuple(asdict(w.value) for w in WardEnum)
+
+
+@api.get('/w/search/', response_model=SearchResults)
+async def search_wards(q: str = SearchQuery):
+    return repo.search_ward(q)
 
 
 @api.get('/w/{code}', response_model=WardResponse)
@@ -115,3 +140,10 @@ async def guide_cdn_cache(request: Request, call_next):
     # Ref: https://vercel.com/docs/edge-network/headers#cache-control-header
     response.headers['Cache-Control'] = f's-maxage={settings.cdn_cache_interval}, stale-while-revalidate'
     return response
+
+
+@app.on_event('startup')
+async def build_search_index():
+    logger.debug('To build search index')
+    repo.build_index()
+    logger.debug('Ready to search')
