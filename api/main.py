@@ -2,7 +2,7 @@ from dataclasses import asdict
 from itertools import groupby
 from operator import attrgetter
 from collections import deque
-from typing import List, FrozenSet, Dict, Any
+from typing import List, FrozenSet, Dict, Any, Optional
 
 from logbook import Logger
 from logbook.more import ColorizedStderrHandler
@@ -15,6 +15,7 @@ from vietnam_provinces import NESTED_DIVISIONS_JSON_PATH
 from vietnam_provinces.enums import ProvinceEnum, DistrictEnum
 from vietnam_provinces.enums.wards import WardEnum
 
+from . import __version__
 from .schema import ProvinceResponse, District as DistrictResponse, Ward as WardResponse, SearchResult
 from .search import Searcher
 
@@ -25,7 +26,7 @@ class Settings(BaseSettings):
 
 
 logger = Logger(__name__)
-app = FastAPI(title='Vietnam Provinces online API')
+app = FastAPI(title='Vietnam Provinces online API', version=__version__)
 api = APIRouter()
 settings = Settings()
 middleware.register(app)
@@ -95,8 +96,9 @@ async def list_districts():
 
 
 @api.get('/d/search/', response_model=SearchResults)
-async def search_districts(q: str = SearchQuery):
-    return repo.search_district(q)
+async def search_districts(q: str = SearchQuery,
+                           p: Optional[int] = Query(None, title='Province code to filter')):
+    return repo.search_district(q, p)
 
 
 @api.get('/d/{code}', response_model=DistrictResponse)
@@ -119,8 +121,10 @@ async def list_wards():
 
 
 @api.get('/w/search/', response_model=SearchResults)
-async def search_wards(q: str = SearchQuery):
-    return repo.search_ward(q)
+async def search_wards(q: str = SearchQuery,
+                       d: Optional[int] = Query(None, title='District code to filter'),
+                       p: Optional[int] = Query(None, title='Province code to filter, ignored if district is given')):
+    return repo.search_ward(q, d, p)
 
 
 @api.get('/w/{code}', response_model=WardResponse)
