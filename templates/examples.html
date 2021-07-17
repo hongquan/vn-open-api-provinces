@@ -69,18 +69,24 @@
 import ky from 'https://unpkg.com/ky/distribution/index.js'
 import Alpine from 'https://unpkg.com/alpinejs@3.2.2/dist/module.esm.js'
 import 'https://unpkg.com/superstruct/umd/superstruct.min.js'
-const { object, number, string, array, mask, assign } = window.Superstruct
+const { object, number, string, array, defaulted, mask, assign } = window.Superstruct
 
 window.Alpine = Alpine
 
-const Province = object({
+const Base = object({
   code: number(),
   name: string()
 })
 
-const District = assign({}, Province)
-const Ward = assign({}, Province)
+const Ward = Base
 
+const District = assign(Base, object({
+  wards: defaulted(array(Ward), [])
+}))
+
+const Province = assign(Base, object({
+  districts: defaulted(array(District), [])
+}))
 
 async function fetchProvinces(app) {
   const rdata = await ky.get('/api/p/').json()
@@ -89,12 +95,14 @@ async function fetchProvinces(app) {
 
 async function fetchDistricts(provinceCode, app) {
   const rdata = await ky.get(`/api/p/${provinceCode}`, { searchParams: { depth: 2 } }).json()
-  app.filteredDistricts = mask(rdata.districts, array(District))
+  const province = mask(rdata, Province)
+  app.filteredDistricts = province.districts
 }
 
 async function fetchWards(districtCode, app) {
   const rdata = await ky.get(`/api/d/${districtCode}`, { searchParams: { depth: 2 } }).json()
-  app.filteredWards = mask(rdata.wards, array(Ward))
+  const district = mask(rdata, District)
+  app.filteredWards = district.wards
 }
 
 async function searchProvince(term, app) {
