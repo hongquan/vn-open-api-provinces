@@ -1,11 +1,15 @@
 from enum import Enum
 from typing import List, Dict, Tuple
-from dataclasses import field as dcfield
 
 from pydantic import BaseModel, Field
-from pydantic.dataclasses import dataclass
 
-from vietnam_provinces.base import VietNamDivisionType, District as _District
+from vietnam_provinces.base import VietNamDivisionType
+
+
+# The code here looks like a duplicate of vietnam_provinces.base, but unfortunately, we cannot subclass from
+# vietnam_provinces.base's dataclasses, because:
+# - Ward is frozen (fastenum's restriction), it cannot be subclass
+# - FastAPI haven't supported dataclasses
 
 
 class DivisionLevel(str, Enum):
@@ -23,19 +27,17 @@ _EXAMPLE_WARD = {
 }
 
 
-class WardConfig:
-    schema_extra = {
-        'example': _EXAMPLE_WARD
-    }
-
-
-@dataclass(config=WardConfig)
-class Ward:
+class Ward(BaseModel):
     name: str
     code: int
     division_type: VietNamDivisionType
     codename: str
     district_code: int
+
+    class Config:
+        schema_extra = {
+            'example': _EXAMPLE_WARD
+        }
 
 
 _EXAMPLE_DISTRICT = {
@@ -48,15 +50,18 @@ _EXAMPLE_DISTRICT = {
 }
 
 
-class DistrictConfig:
-    schema_extra = {
-        'example': _EXAMPLE_DISTRICT
-    }
+class District(BaseModel):
+    name: str
+    code: int
+    division_type: VietNamDivisionType
+    codename: str
+    province_code: int
+    wards: List[Ward] = Field(default=[])
 
-
-@dataclass(config=DistrictConfig)
-class District(dataclass(_District)):
-    wards: List[Ward] = dcfield(default_factory=list)
+    class Config:
+        schema_extra = {
+            'example': _EXAMPLE_DISTRICT
+        }
 
 
 _EXAMPLE_PROVINCE = {
