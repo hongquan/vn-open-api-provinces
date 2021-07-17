@@ -77,6 +77,7 @@ class Searcher:
                 matches[term] = locate(obj.name, term)
                 result = SearchResult(code=code, name=obj.name, matches=matches, score=r['score'])
                 results.append(result)
+
         return tuple(results)
 
     def search_province(self, query: str):

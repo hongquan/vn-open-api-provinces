@@ -24,21 +24,27 @@ The code consists of two parts:
 
 Assume that you already install all dependencies.
 
-- To build landing page, run at top level folder:
+- To build landing page, run at the top-level folder:
 
   .. code-block:: sh
 
     zola build
 
-- To run the backend, run at top level folder:
+- To run the backend, run at the top-level folder:
 
   .. code-block:: sh
 
     uvicorn api.main:app
 
+- To serve the landing page and run the API backend at the same time, you can run this at the top-level folder:
+
+  .. code-block:: sh
+
+    npx vercel dev
+
 - If you modify HTML code in landing, chance that you are adding new CSS classes and you don't see update.
   It is because we configure TailwindCSS to delete all unused CSS classes. You need to build TailwindCSS again, let it scan used classes again.
-  Run in *front-dev*:
+  Doing so by running this command in *front-dev*:
 
   .. code-block:: sh
 

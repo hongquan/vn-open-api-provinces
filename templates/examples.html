@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+
+{% block title %} {{ page.title }}{% endblock title %}
+{% block main %}
+<main class='container mx-auto px-5 flex flex-col flex-1'>
+  <h1 class='title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900'>Ví dụ</h1>
+  <article class='mt-6'>
+    <h2 class='text-2xl'>Python</h2>
+    <p class='mt-4'>Ứng dụng Python nên dùng thư viện <a href='https://pypi.org/project/vietnam-provinces/' class='underline text-blue-700'>VietnamProvinces</a> hơn là API này.</p>
+  </article>
+  <article class='mt-6'>
+    <h2 class='text-2xl'>JavaScript (ở backend-end)</h2>
+    <p class='mt-4'>Với back-end, sử dụng API này thì không hiệu quả lắm (do độ trễ của việc gọi API từ xa). Tuy nhiên, có thể trong tương lai dự án <a href='https://pypi.org/project/vietnam-provinces/' class='underline text-blue-700'>VietnamProvinces</a>
+    sẽ được dùng để sinh code cho TypeScript và sẽ có một bản port cho JS ở back-end.</p>
+  </article>
+  <article class='mt-6'>
+    <h2 class='text-2xl'>JavaScript (ở front-end)</h2>
+    <p class='mt-4'>
+    Vui lòng dùng chức năng "View Page Source" của trình duyệt để xem code. Code được viết:
+    </p>
+    <ul class='list-disc list-inside'>
+      <li>Theo cú pháp JavaScript ES6.</li>
+      <li>Sử dụng framework <a href='https://alpinejs.dev/' class='underline'>AlpineJS</a>.</li>
+    </ul>
+    <div x-data='formApp' class='mt-4'>
+      <div class='flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4'>
+        <div class='relative' @click.outside='provinceListShown = false'>
+          <input class='p-1 px-2 appearance-none outline-none text-gray-800 border' x-model='provinceSearch' placeholder='Tỉnh...' @focus='provinceListShown = true'>
+
+          <div class='absolute z-10 max-h-48 w-full bg-gray-100 overflow-y-auto shadow' x-show='provinceListShown && filteredProvinces.length'>
+            <ul class='list-none'>
+              <template x-for='(item, idx) of filteredProvinces' :key='idx'>
+                <li x-text='item.name' class='px-2 py-1 cursor-pointer bg-white hover:bg-blue-100' @click='selectProvince(item)'></li>
+              </template>
+            </ul>
+          </div>
+        </div>
+        <div class='relative' @click.outside='districtListShown = false'>
+          <input class='p-1 px-2 appearance-none outline-none text-gray-800 border' x-model='districtSearch' placeholder='Huyện...'
+                 @focus='startSearchingDistrict' @input.debounce='searchDistrictOnTyping'>
+
+          <div class='absolute z-10 max-h-48 w-full bg-gray-100 overflow-y-auto shadow' x-show='districtListShown && filteredDistricts.length'>
+            <ul class='list-none'>
+              <template x-for='(item, idx) of filteredDistricts' :key='idx'>
+                <li x-text='item.name' class='px-2 py-1 cursor-pointer bg-white hover:bg-blue-100' @click='selectDistrict(item)'></li>
+              </template>
+            </ul>
+          </div>
+        </div>
+        <div class='relative' @click.outside='wardListShown = false'>
+          <input class='p-1 px-2 appearance-none outline-none text-gray-800 border' x-model='wardSearch' placeholder='Xã...' @focus='startSearchingWard'>
+
+          <div class='absolute z-10 max-h-48 w-full bg-gray-100 overflow-y-auto shadow' x-show='wardListShown && filteredWards.length'>
+            <ul class='list-none'>
+              <template x-for='(item, idx) of filteredWards' :key='idx'>
+                <li x-text='item.name' class='px-2 py-1 cursor-pointer bg-white hover:bg-blue-100' @click='selectWard(item)'></li>
+              </template>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+</main>
+{% endblock main %}
+
+{% block scripts %}
+<script type='module'>
+import ky from 'https://unpkg.com/ky/distribution/index.js'
+import Alpine from 'https://unpkg.com/alpinejs@3.2.2/dist/module.esm.js'
+import 'https://unpkg.com/superstruct/umd/superstruct.min.js'
+const { object, number, string, array, mask, assign } = window.Superstruct
+
+window.Alpine = Alpine
+
+const Province = object({
+  code: number(),
+  name: string()
+})
+
+const District = assign({}, Province)
+const Ward = assign({}, Province)
+
+
+async function fetchProvinces(app) {
+  const rdata = await ky.get('/api/p/').json()
+  app.filteredProvinces = mask(rdata, array(Province))
+}
+
+async function fetchDistricts(provinceCode, app) {
+  const rdata = await ky.get(`/api/p/${provinceCode}`, { searchParams: { depth: 2 } }).json()
+  app.filteredDistricts = mask(rdata.districts, array(District))
+}
+
+async function fetchWards(districtCode, app) {
+  const rdata = await ky.get(`/api/d/${districtCode}`, { searchParams: { depth: 2 } }).json()
+  app.filteredWards = mask(rdata.wards, array(Ward))
+}
+
+async function searchProvince(term, app) {
+  if (app.selectedProvince && app.selectedProvince.name === term) {
+    return
+  }
+  const rdata = await ky.get('/api/p/search/', {
+    searchParams: { q: term }
+  }).json()
+  app.filteredProvinces = mask(rdata, array(Province))
+}
+
+async function searchDistrict(term, provinceCode, app) {
+  if (app.selectedDistrict && app.selectedDistrict.name === term) {
+    return
+  }
+  const rdata = await ky.get('/api/d/search/', {
+    searchParams: { q: term, p: provinceCode }
+  }).json()
+  app.filteredDistricts = mask(rdata, array(District))
+}
+
+async function searchWard(term, districtCode, app) {
+  if (app.selectedWard && app.selectedWard.name === term) {
+    return
+  }
+  const rdata = await ky.get('/api/w/search/', {
+    searchParams: { q: term, d: districtCode }
+  }).json()
+  app.filteredWards = mask(rdata, array(Ward))
+}
+
+Alpine.data('formApp', () => ({
+  provinceSearch: '',
+  provinceListShown: false,
+  filteredProvinces: [],
+  selectedProvince: null,
+  districtSearch: '',
+  districtListShown: false,
+  filteredDistricts: [],
+  selectedDistrict: null,
+  wardSearch: '',
+  wardListShown: false,
+  filteredWards: [],
+  selectedWard: null,
+
+  async fetchProvinces() {
+    fetchProvinces(this)
+  },
+  resetProvince() {
+    this.provinceSearch = ''
+    this.selectProvince = null
+    this.filteredProvinces = []
+    this.provinceListShown = false
+  },
+  resetDistrict() {
+    this.districtSearch = ''
+    this.selectedDistrict = null
+    this.filteredDistricts = []
+    this.districtListShown = false
+  },
+  resetWard() {
+    this.wardSearch = ''
+    this.selectedWard = null
+    this.filteredWards = ''
+    this.wardListShown = false
+  },
+  async startSearchingDistrict() {
+    this.districtListShown = true
+    if (this.filteredDistricts.length || !this.selectedProvince) {
+      return
+    }
+    await fetchDistricts(this.selectedProvince.code, this)
+  },
+  async searchDistrictOnTyping() {
+    const term = this.districtSearch.trim()
+      if (!term || !this.selectedProvince) {
+        return
+      }
+    await searchDistrict(term, this.selectedProvince.code, this)
+  },
+  async startSearchingWard() {
+    this.wardListShown = true
+    if (this.filteredWards.length || !this.selectedDistrict) {
+      return
+    }
+    await fetchWards(this.selectedDistrict.code, this)
+  },
+  selectProvince(province) {
+    this.provinceListShown = false
+    this.selectedProvince = province
+    this.provinceSearch = province.name
+    this.resetDistrict()
+    this.resetWard()
+  },
+  selectDistrict(district) {
+    this.districtListShown = false
+    this.selectedDistrict = district
+    this.districtSearch = district.name
+    this.resetWard()
+  },
+  selectWard(ward) {
+    this.wardListShown = false
+    this.selectedWard = ward
+    this.wardSearch = ward.name
+  },
+  async init() {
+    this.$watch('provinceSearch', async (value) => {
+      const term = value.trim()
+      if (!term) {
+        return
+      }
+      await searchProvince(value, this)
+    })
+
+    this.$watch('wardSearch', async (value) => {
+      const term = value.trim()
+      if (!term || !this.selectedDistrict) {
+        return
+      }
+      await searchWard(value, this.selectedDistrict.code, this)
+    })
+
+    await fetchProvinces(this)
+  }
+}))
+Alpine.start()
+</script>
+{% endblock scripts %}

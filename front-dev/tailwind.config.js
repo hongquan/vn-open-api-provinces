@@ -22,6 +22,9 @@ module.exports = {
               marginTop: '1em',
               marginBottom: '1em',
             },
+            h2: {
+              fontWeight: 'inherit'
+            },
           }
         }
       }
