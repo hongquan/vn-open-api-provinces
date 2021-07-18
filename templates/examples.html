@@ -30,7 +30,7 @@
           <div class='absolute z-10 max-h-48 w-full bg-gray-100 overflow-y-auto shadow' x-show='provinceListShown && filteredProvinces.length'>
             <ul class='list-none'>
               <template x-for='(item, idx) of filteredProvinces' :key='idx'>
-                <li x-text='item.name' class='px-2 py-1 cursor-pointer bg-white hover:bg-blue-100' @click='selectProvince(item)'></li>
+                <li x-html='highlightName(item)' class='px-2 py-1 cursor-pointer bg-white hover:bg-blue-100' @click='selectProvince(item)'></li>
               </template>
             </ul>
           </div>
@@ -42,7 +42,7 @@
           <div class='absolute z-10 max-h-48 w-full bg-gray-100 overflow-y-auto shadow' x-show='districtListShown && filteredDistricts.length'>
             <ul class='list-none'>
               <template x-for='(item, idx) of filteredDistricts' :key='idx'>
-                <li x-text='item.name' class='px-2 py-1 cursor-pointer bg-white hover:bg-blue-100' @click='selectDistrict(item)'></li>
+                <li x-html='highlightName(item)' class='px-2 py-1 cursor-pointer bg-white hover:bg-blue-100' @click='selectDistrict(item)'></li>
               </template>
             </ul>
           </div>
@@ -53,7 +53,7 @@
           <div class='absolute z-10 max-h-48 w-full bg-gray-100 overflow-y-auto shadow' x-show='wardListShown && filteredWards.length'>
             <ul class='list-none'>
               <template x-for='(item, idx) of filteredWards' :key='idx'>
-                <li x-text='item.name' class='px-2 py-1 cursor-pointer bg-white hover:bg-blue-100' @click='selectWard(item)'></li>
+                <li x-html='highlightName(item)' class='px-2 py-1 cursor-pointer bg-white hover:bg-blue-100' @click='selectWard(item)'></li>
               </template>
             </ul>
           </div>
@@ -69,13 +69,16 @@
 import ky from 'https://unpkg.com/ky/distribution/index.js'
 import Alpine from 'https://unpkg.com/alpinejs@3.2.2/dist/module.esm.js'
 import 'https://unpkg.com/superstruct/umd/superstruct.min.js'
-const { object, number, string, array, defaulted, mask, assign } = window.Superstruct
+const { object, number, string, array, record, defaulted, optional, size, mask, assign } = window.Superstruct
 
 window.Alpine = Alpine
 
+const SearchMatches = record(string(), size(array(number()), 2))
+
 const Base = object({
   code: number(),
-  name: string()
+  name: string(),
+  matches: optional(SearchMatches)
 })
 
 const Ward = Base
@@ -169,6 +172,23 @@ Alpine.data('formApp', () => ({
     this.selectedWard = null
     this.filteredWards = ''
     this.wardListShown = false
+  },
+  highlightName(item) {
+    if (!item.matches) {
+      return item.name
+    }
+    var name = item.name
+    const matches = Object.values(item.matches)
+    matches.sort((v1, v2) => v1[0] - v2[0])
+    const parts = []
+    var lastPos = 0
+    for (const [s, e] of matches) {
+      parts.push(name.slice(lastPos, s))
+      parts.push(`<strong>${name.slice(s, e)}</strong>`)
+      lastPos = e
+    }
+    parts.push(name.slice(lastPos))
+    return parts.join('')
   },
   async startSearchingDistrict() {
     this.districtListShown = true
