@@ -25,7 +25,7 @@
     <div x-data='formApp' class='mt-4'>
       <div class='flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4'>
         <div class='relative' @click.outside='provinceListShown = false'>
-          <input class='p-1 px-2 appearance-none outline-none text-gray-800 border' x-model='provinceSearch' placeholder='Tỉnh...' @focus='provinceListShown = true'>
+          <input class='p-1 px-2 appearance-none outline-none text-gray-800 border' x-model.trim='provinceSearch' placeholder='Tỉnh...' @focus='provinceListShown = true'>
 
           <div class='absolute z-10 max-h-48 w-full bg-gray-100 overflow-y-auto shadow' x-show='provinceListShown && filteredProvinces.length'>
             <ul class='list-none'>
@@ -36,7 +36,7 @@
           </div>
         </div>
         <div class='relative' @click.outside='districtListShown = false'>
-          <input class='p-1 px-2 appearance-none outline-none text-gray-800 border' x-model='districtSearch' placeholder='Huyện...'
+          <input class='p-1 px-2 appearance-none outline-none text-gray-800 border' x-model.trim='districtSearch' placeholder='Huyện...'
                  @focus='startSearchingDistrict' @input.debounce='searchDistrictOnTyping'>
 
           <div class='absolute z-10 max-h-48 w-full bg-gray-100 overflow-y-auto shadow' x-show='districtListShown && filteredDistricts.length'>
@@ -48,7 +48,7 @@
           </div>
         </div>
         <div class='relative' @click.outside='wardListShown = false'>
-          <input class='p-1 px-2 appearance-none outline-none text-gray-800 border' x-model='wardSearch' placeholder='Xã...' @focus='startSearchingWard'>
+          <input class='p-1 px-2 appearance-none outline-none text-gray-800 border' x-model.trim='wardSearch' placeholder='Xã...' @focus='startSearchingWard'>
 
           <div class='absolute z-10 max-h-48 w-full bg-gray-100 overflow-y-auto shadow' x-show='wardListShown && filteredWards.length'>
             <ul class='list-none'>
@@ -91,6 +91,16 @@ const Province = assign(Base, object({
   districts: defaulted(array(District), [])
 }))
 
+
+/*
+ * The Lunr engine consider each keyword optional, but in the context of
+ * this demo, we want all keywords to be present
+ */
+function markRequireAll(query) {
+  const words = query.split(/\s+/)
+  return words.map(w => `+${w}`).join(' ')
+}
+
 async function fetchProvinces(app) {
   const rdata = await ky.get('/api/p/').json()
   app.filteredProvinces = mask(rdata, array(Province))
@@ -113,7 +123,7 @@ async function searchProvince(term, app) {
     return
   }
   const rdata = await ky.get('/api/p/search/', {
-    searchParams: { q: term }
+    searchParams: { q: markRequireAll(term) }
   }).json()
   app.filteredProvinces = mask(rdata, array(Province))
 }
@@ -123,7 +133,7 @@ async function searchDistrict(term, provinceCode, app) {
     return
   }
   const rdata = await ky.get('/api/d/search/', {
-    searchParams: { q: term, p: provinceCode }
+    searchParams: { q: markRequireAll(term), p: provinceCode }
   }).json()
   app.filteredDistricts = mask(rdata, array(District))
 }
@@ -133,7 +143,7 @@ async function searchWard(term, districtCode, app) {
     return
   }
   const rdata = await ky.get('/api/w/search/', {
-    searchParams: { q: term, d: districtCode }
+    searchParams: { q: markRequireAll(term), d: districtCode }
   }).json()
   app.filteredWards = mask(rdata, array(Ward))
 }
