@@ -94,7 +94,6 @@ class SearchResult(BaseModel):
     matches: Dict[str, Tuple[int, int]] = Field({}, title='Matched words and their positions in name.',
                                                 description='This info can help client side highlight '
                                                 'the result in display.')
-    score: int
 
     class Config:
         schema_extra = {
@@ -104,6 +103,5 @@ class SearchResult(BaseModel):
                 'matches': {
                     'mỹ': [11, 13]
                 },
-                'score': 3
             }
         }

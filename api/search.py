@@ -1,5 +1,4 @@
 import re
-from collections import deque
 from typing import Optional, Dict, Union, Tuple, List, Any
 
 from lunr import lunr
@@ -54,7 +53,9 @@ class Searcher:
             lresults: List[Dict[str, Any]] = self.ward_index.search(query)
         if not lresults:
             return []
-        results = deque()
+        # Lunrpy sometimes returns duplicate-like results
+        # (same ref but different matches and scores). We will combine those.
+        dresults = {}
         for r in lresults:
             code = int(r['ref'])
             for term, fields in r['match_data'].metadata.items():
@@ -75,10 +76,11 @@ class Searcher:
                 # Find position of matched keyword, to help highlighting
                 matches = {}
                 matches[term] = locate(obj.name, term)
-                result = SearchResult(code=code, name=obj.name, matches=matches, score=r['score'])
-                results.append(result)
-
-        return tuple(results)
+                try:
+                    dresults[code].matches.update(matches)
+                except KeyError:
+                    dresults[code] = SearchResult(code=code, name=obj.name, matches=matches)
+        return tuple(dresults.values())
 
     def search_province(self, query: str):
         return self.search(query, DivisionLevel.P)
