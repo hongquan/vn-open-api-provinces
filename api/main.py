@@ -10,6 +10,7 @@ from fastapi import FastAPI, APIRouter, Query, HTTPException, Request
 from fastapi.responses import FileResponse
 from pydantic import BaseSettings
 from fastapi_rfc7807 import middleware
+from lunr.exceptions import QueryParseError
 
 from vietnam_provinces import NESTED_DIVISIONS_JSON_PATH
 from vietnam_provinces.enums import ProvinceEnum, DistrictEnum
@@ -63,8 +64,11 @@ async def list_provinces():
 
 @api.get('/p/search/', response_model=SearchResults)
 async def search_provinces(q: str = SearchQuery):
-    res = repo.search_province(q)
-    return res
+    try:
+        res = repo.search_province(q)
+        return res
+    except QueryParseError:
+        raise HTTPException(status_code=422, detail='unrecognized-search-query')
 
 
 @api.get('/p/{code}', response_model=ProvinceResponse)
@@ -73,7 +77,7 @@ async def get_province(code: int,
                                           description='2: show districts; 3: show wards')):
     try:
         province = ProvinceEnum[f'P_{code}'].value
-    except KeyError:
+    except AttributeError:
         raise HTTPException(404, detail='invalid-province-code')
     response = asdict(province)
     districts = {}
@@ -98,7 +102,10 @@ async def list_districts():
 @api.get('/d/search/', response_model=SearchResults)
 async def search_districts(q: str = SearchQuery,
                            p: Optional[int] = Query(None, title='Province code to filter')):
-    return repo.search_district(q, p)
+    try:
+        return repo.search_district(q, p)
+    except QueryParseError:
+        raise HTTPException(status_code=422, detail='unrecognized-search-query')
 
 
 @api.get('/d/{code}', response_model=DistrictResponse)
@@ -107,7 +114,7 @@ async def get_district(code: int,
                                           description='2: show wards')):
     try:
         district = DistrictEnum[f'D_{code}'].value
-    except KeyError:
+    except AttributeError:
         raise HTTPException(404, detail='invalid-district-code')
     response = asdict(district)
     if depth == 2:
@@ -124,14 +131,17 @@ async def list_wards():
 async def search_wards(q: str = SearchQuery,
                        d: Optional[int] = Query(None, title='District code to filter'),
                        p: Optional[int] = Query(None, title='Province code to filter, ignored if district is given')):
-    return repo.search_ward(q, d, p)
+    try:
+        return repo.search_ward(q, d, p)
+    except QueryParseError:
+        raise HTTPException(status_code=422, detail='unrecognized-search-query')
 
 
 @api.get('/w/{code}', response_model=WardResponse)
 async def get_ward(code: int):
     try:
         ward = WardEnum[f'W_{code}'].value
-    except KeyError:
+    except AttributeError:
         raise HTTPException(404, detail='invalid-ward-code')
     return asdict(ward)
 
