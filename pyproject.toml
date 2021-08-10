@@ -23,6 +23,7 @@ single-version = "^1.5.1"
 pytest = "^5.2"
 doc8 = "^0.8.1"
 flake8 = "^3.9.2"
+wheel = "^0.37.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
