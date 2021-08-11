@@ -77,7 +77,7 @@ async def get_province(code: int,
                                           description='2: show districts; 3: show wards')):
     try:
         province = ProvinceEnum[f'P_{code}'].value
-    except AttributeError:
+    except (KeyError, AttributeError):
         raise HTTPException(404, detail='invalid-province-code')
     response = asdict(province)
     districts = {}
@@ -114,7 +114,7 @@ async def get_district(code: int,
                                           description='2: show wards')):
     try:
         district = DistrictEnum[f'D_{code}'].value
-    except AttributeError:
+    except (KeyError, AttributeError):
         raise HTTPException(404, detail='invalid-district-code')
     response = asdict(district)
     if depth == 2:
@@ -141,7 +141,7 @@ async def search_wards(q: str = SearchQuery,
 async def get_ward(code: int):
     try:
         ward = WardEnum[f'W_{code}'].value
-    except AttributeError:
+    except (KeyError, AttributeError):
         raise HTTPException(404, detail='invalid-ward-code')
     return asdict(ward)
 
