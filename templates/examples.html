@@ -97,7 +97,7 @@ const Province = assign(Base, object({
  * The Lunr engine consider each keyword optional, but in the context of
  * this demo, we want all keywords to be present.
  * This function is to prefix all keywords with plus ("+"),
- * ex: "Bà Rịa" -> "+Bà Rịa".
+ * ex: "Bà Rịa" -> "+Bà +Rịa".
  */
 function markRequireAll(query) {
   const words = query.split(/\s+/)
@@ -190,7 +190,7 @@ Alpine.data('formApp', () => ({
     if (!item.matches) {
       return item.name
     }
-    var name = item.name
+    const name = item.name
     const matches = Object.values(item.matches)
     matches.sort((v1, v2) => v1[0] - v2[0])
     const parts = []
