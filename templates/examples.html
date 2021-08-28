@@ -16,16 +16,17 @@
   <article class='mt-6'>
     <h2 class='text-2xl'>JavaScript (ở front-end)</h2>
     <p class='mt-4'>
-    Vui lòng dùng chức năng "View Page Source" của trình duyệt để xem code. Code được viết:
+    Xem code qua chức năng "View Page Source" của trình duyệt, hoặc trên kho <a href='https://github.com/hongquan/vn-open-api-provinces/blob/main/templates/examples.html' class='underline'>GitHub</a>. Code được viết bằng ngôn ngữ JavaScript:
     </p>
     <ul class='list-disc list-inside'>
-      <li>Theo cú pháp JavaScript ES6.</li>
+      <li>Theo cú pháp <a href='https://2ality.com/2016/02/ecmascript-2017.html' class='underline'>ECMAScript 2017</a>.</li>
       <li>Sử dụng framework <a href='https://alpinejs.dev/' class='underline'>AlpineJS</a>.</li>
     </ul>
     <div x-data='formApp' class='mt-4'>
       <div class='flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4'>
         <div class='relative' @click.outside='provinceListShown = false'>
-          <input class='p-1 px-2 appearance-none outline-none text-gray-800 border' x-model.trim='provinceSearch' placeholder='Tỉnh...' @focus='provinceListShown = true'>
+          <input class='p-1 px-2 appearance-none outline-none text-gray-800 border' x-model.trim='provinceSearch' placeholder='Tỉnh...'
+                 @focus='startSearchingProvince'>
 
           <div class='absolute z-10 max-h-48 w-full bg-gray-100 overflow-y-auto shadow' x-show='provinceListShown && filteredProvinces.length'>
             <ul class='list-none'>
@@ -94,7 +95,9 @@ const Province = assign(Base, object({
 
 /*
  * The Lunr engine consider each keyword optional, but in the context of
- * this demo, we want all keywords to be present
+ * this demo, we want all keywords to be present.
+ * This function is to prefix all keywords with plus ("+"),
+ * ex: "Bà Rịa" -> "+Bà Rịa".
  */
 function markRequireAll(query) {
   const words = query.split(/\s+/)
@@ -199,6 +202,12 @@ Alpine.data('formApp', () => ({
     }
     parts.push(name.slice(lastPos))
     return parts.join('')
+  },
+  async startSearchingProvince() {
+    this.provinceListShown = true
+    if (!this.filteredProvinces.length) {
+      fetchProvinces(this)
+    }
   },
   async startSearchingDistrict() {
     this.districtListShown = true
