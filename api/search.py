@@ -75,7 +75,11 @@ class Searcher:
                             continue
                 # Find position of matched keyword, to help highlighting
                 matches = {}
-                matches[term] = locate(obj.name, term)
+                try:
+                    matches[term] = locate(obj.name, term)
+                except ValueError:
+                    # There is a case, where keyword is "lai" but search engine returns "Mường Lay"
+                    continue
                 try:
                     dresults[code].matches.update(matches)
                 except KeyError:
