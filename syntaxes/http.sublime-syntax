@@ -1,0 +1,286 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+scope: source.http
+name: HTTP Request and Response
+file_extensions:
+  - http
+first_line_match: |-
+  (?x:
+    ^
+    (?:
+      (?:GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)\ .+\ HTTP/\d(?:\.\d)?$
+      |
+      (?:HTTP/\d(?:\.\d)?\ \d{3}\ )
+    )
+  )
+variables:
+  content_type_sep: (?=;|\r?$)
+  multipart_form_data_boundary: (?:^---+.*$)
+  http_version: (?:\bHTTP/\d(?:\.\d)?\b)
+  end_of_body: (?=^{{http_version}}[ ]\d{3})
+  end_of_headers: (?:^\r?$\n)
+  media_type_suffix_prefix: (?:[\w.-]+/[\w.-]+)
+contexts:
+  prototype:
+    - match: '^##'
+      scope: punctuation.definition.comment.http
+      push:
+        - meta_scope: comment.line.syntax-test.http
+        - match: $\n?
+          set:
+            - match: ^
+              pop: true
+
+  main:
+    - match: ^(?:GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)
+      scope: meta.http-verb.http keyword.operator.word.http
+    - match: '{{end_of_body}}'
+      push: response_begin
+    - include: http-protocol-version
+    - include: url_escape_char
+    - match: /
+      scope: meta.url punctuation.separator.path.directory.http
+    - match: \?
+      scope: punctuation.separator.sequence.querystring.http
+      push: querystring
+    - match: '[^&\s?/]+'
+      scope: meta.url.http
+    - match: $
+      set: http-headers
+
+  http-protocol-version:
+    - match: '{{http_version}}'
+      scope: constant.language.protocol-version.http
+
+  response_begin:
+    - include: http-protocol-version
+    - match: $
+      pop: true
+    - match: (?=[123])
+      set: [info, response_code]
+    - match: (?=4)
+      set: [warning, response_code]
+    - match: (?=5)
+      set: [error, response_code]
+    - include: response_code
+
+  warning:
+    - meta_scope: markup.warning.log
+    - match: ''
+      pop: true
+
+  error:
+    - meta_scope: markup.error.log
+    - match: ''
+      pop: true
+
+  info:
+    - meta_scope: markup.info.log
+    - match: ''
+      pop: true
+
+  response_code:
+    - match: \d+(\.\d+)?
+      scope: meta.http-status-code.http meta.number.integer.decimal.http constant.numeric.value.http
+    - match: \S.*$
+      scope: meta.http-response-status-text.http string.unquoted.http
+      pop: true
+    - match: $
+      pop: true
+
+  querystring:
+    - meta_content_scope: meta.querystring.http
+    - match: '[^&\s=]+'
+      scope: variable.parameter.http
+    - match: \&
+      scope: keyword.operator.querystring.and.http
+    - match: =
+      scope: keyword.operator.querystring.equals.http
+      push:
+        - match: '[^&\s%]+'
+          scope: string.unquoted.value.http
+        - include: url_escape_char
+        - match: ''
+          pop: true
+    - match: ''
+      pop: true
+
+  url_escape_char:
+    - match: (%)\h{2}
+      scope: meta.url constant.character.escape.url.html
+      captures:
+        1: punctuation.definition.escape.html
+
+  content-type:
+    - meta_content_scope: meta.headers.http
+    - match: (application/json|text/json|{{media_type_suffix_prefix}}\+json){{content_type_sep}}
+      set: [content-type-json, header-value]
+    - match: (application/xhtml\+xml|text/html){{content_type_sep}}
+      set: [content-type-html, header-value]
+    - match: (application/xml|text/xml|{{media_type_suffix_prefix}}\+xml){{content_type_sep}}
+      set: [content-type-xml, header-value]
+    - match: (application/x-www-form-urlencoded){{content_type_sep}}
+      set: [content-type-querystring, header-value]
+    - match: (multipart/form-data){{content_type_sep}}
+      set: [content-type-multipart-form-data, header-value]
+    - match: (application/javascript){{content_type_sep}}
+      set: [content-type-js, header-value]
+    - match: (text/css){{content_type_sep}}
+      set: [content-type-css, header-value]
+    - match: (?=\S.*{{content_type_sep}})
+      set: [content-type-plaintext, header-value]
+
+  http-headers:
+    - meta_content_scope: meta.headers.http
+    - match: (?i)^(Content-Type)(:)\s*
+      captures:
+        1: keyword.other.http-header.key.http
+        2: punctuation.separator.key-value.http
+      set: content-type
+    - match: ([^:]+)(:)\s*(\d+)$
+      captures:
+        1: keyword.other.http-header.key.http
+        2: punctuation.separator.key-value.http
+        3: meta.number.integer.decimal.http constant.numeric.value.http
+    - match: ([^:]+)(:)\s*
+      captures:
+        1: keyword.other.http-header.key.http
+        2: punctuation.separator.key-value.http
+      push: header-value
+    - match: '{{end_of_headers}}'
+      set: [body, embed_plain]
+
+  header-value:
+    - meta_scope: string.unquoted.http-header.value.http
+    - match: '[;,]'
+      scope: punctuation.separator.mapping.key-value.http
+    - match: \b([-\w]+)(=)
+      captures:
+        1: variable.parameter.http
+        2: keyword.operator.assignment.http
+      push: possible-number
+    - match: $
+      pop: true
+
+  possible-number:
+    - match: \b\d+(?!\.)\b
+      scope: meta.number.integer.decimal.http constant.numeric.value.http
+      pop: true
+    - match: ''
+      pop: true
+
+  content-type-json:
+    - meta_content_scope: meta.headers.http
+    - match: '{{end_of_headers}}'
+      set: [body, embed_json]
+    - include: http-headers
+
+  content-type-xml:
+    - meta_content_scope: meta.headers.http
+    - match: '{{end_of_headers}}'
+      set: [body, embed_xml]
+    - include: http-headers
+
+  content-type-html:
+    - meta_content_scope: meta.headers.http
+    - match: '{{end_of_headers}}'
+      set: [body, embed_html]
+    - include: http-headers
+
+  content-type-querystring:
+    - meta_content_scope: meta.headers.http
+    - match: '{{end_of_headers}}'
+      set: [body, embed_querystring]
+    - include: http-headers
+
+  content-type-multipart-form-data:
+    - meta_content_scope: meta.headers.http
+    - match: '{{end_of_headers}}'
+      set: [body, embed_multipart-form-data]
+    - include: http-headers
+
+  content-type-js:
+    - meta_content_scope: meta.headers.http
+    - match: '{{end_of_headers}}'
+      set: [body, embed_js]
+    - include: http-headers
+
+  content-type-css:
+    - meta_content_scope: meta.headers.http
+    - match: '{{end_of_headers}}'
+      set: [body, embed_css]
+    - include: http-headers
+
+  content-type-plaintext:
+    - meta_content_scope: meta.headers.http
+    - match: '{{end_of_headers}}'
+      set: [body, embed_plain]
+    - include: http-headers
+
+  multipart-form-data-boundary:
+    - match: '{{multipart_form_data_boundary}}'
+      scope: punctuation.separator.mapping.http
+    - include: http-headers
+
+  multipart-form-data:
+    - include: multipart-form-data-boundary
+    - include: http-headers
+
+  body:
+    - meta_content_scope: meta.body.http
+    - match: '{{end_of_body}}'
+      set: main
+
+  end_embed:
+    - match: '{{end_of_body}}'
+      pop: true
+
+  embed_json:
+    - include: end_embed
+    - match: ''
+      embed: scope:source.json
+      escape: '{{end_of_body}}'
+
+  embed_xml:
+    - include: end_embed
+    - match: ''
+      embed: scope:text.xml
+      escape: '{{end_of_body}}'
+
+  embed_html:
+    - include: end_embed
+    - match: ''
+      embed: scope:text.html.basic
+      escape: (?={{end_of_body}})
+
+  embed_js:
+    - include: end_embed
+    - match: ''
+      embed: scope:source.js
+      escape: '{{end_of_body}}'
+
+  embed_querystring:
+    - include: end_embed
+    - match: ''
+      embed: querystring
+      escape: '{{end_of_body}}'
+
+  embed_multipart-form-data:
+    - include: end_embed
+    - include: multipart-form-data-boundary
+    - match: ''
+      embed: multipart-form-data
+      escape: (?={{multipart_form_data_boundary}})|{{end_of_body}}
+
+  embed_plain:
+    - include: end_embed
+    - match: ''
+      embed: scope:text.plain
+      escape: '{{end_of_body}}'
+
+  embed_css:
+    - include: end_embed
+    - match: ''
+      embed: scope:source.css
+      escape: '{{end_of_body}}'
