@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     cdn_cache_interval: int = 30
 
 
+BLACKLISTED_CLIENTS = ('34.68.53.144',)
+
 logger = Logger(__name__)
 app = FastAPI(title='Vietnam Provinces online API', version=__version__)
 api = APIRouter()
@@ -42,9 +44,14 @@ SearchQuery = Query(..., title='Query string for search', example='Hiền Hòa',
 
 
 @api.get('/', response_model=List[ProvinceResponse])
-async def show_all_divisions(depth: int = Query(1, ge=1, le=3,
+async def show_all_divisions(request: Request,
+                             depth: int = Query(1, ge=1, le=3,
                                                 title='Show down to subdivisions',
                                                 description='2: show districts; 3: show wards')):
+    client_ip = request.client.host
+    if depth > 1 and client_ip in BLACKLISTED_CLIENTS:
+        logger.info('{} is blacklisted.', client_ip)
+        raise HTTPException(429)
     if depth >= 3:
         return FileResponse(NESTED_DIVISIONS_JSON_PATH)
     if depth == 2:
