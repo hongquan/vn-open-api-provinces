@@ -55,8 +55,6 @@ async def show_all_divisions(request: Request,
     if depth > 1:
         env_value = os.getenv('BLACKLISTED_CLIENTS', '')
         blacklist = filter(None, (s.strip() for s in env_value.split(',')))
-        logger.info('Client IP: {}', client_ip)
-        logger.info('Blacklist: {}', blacklist)
         if client_ip in blacklist:
             logger.info('{} is blacklisted.', client_ip)
             raise HTTPException(429)
@@ -159,11 +157,6 @@ async def get_ward(code: int):
     except (KeyError, AttributeError):
         raise HTTPException(404, detail='invalid-ward-code')
     return asdict(ward)
-
-
-@api.get('/_client_ip')
-async def get_client_ip(request: Request):
-    return request.client.host
 
 
 app.include_router(api, prefix='/api')
