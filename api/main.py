@@ -54,7 +54,7 @@ async def show_all_divisions(request: Request,
     client_ip = request.client.host
     if depth > 1:
         env_value = os.getenv('BLACKLISTED_CLIENTS', '')
-        blacklist = tuple(s.strip() for s in env_value.split(','))
+        blacklist = filter(None, (s.strip() for s in env_value.split(',')))
         logger.info('Client IP: {}', client_ip)
         logger.info('Blacklist: {}', blacklist)
         if client_ip in blacklist:
