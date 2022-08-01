@@ -1,11 +1,12 @@
 import os
+import sys
 from dataclasses import asdict
 from itertools import groupby
 from operator import attrgetter
 from collections import deque
 from typing import List, FrozenSet, Dict, Any, Optional
 
-from logbook import Logger
+from logbook import Logger, StreamHandler
 from logbook.more import ColorizedStderrHandler
 from fastapi import FastAPI, APIRouter, Query, HTTPException, Request
 from fastapi.responses import FileResponse
@@ -33,7 +34,10 @@ api = APIRouter()
 settings = Settings()
 middleware.register(app)
 repo = Searcher()
-ColorizedStderrHandler().push_application()
+if not os.getenv('VERCEL'):
+    ColorizedStderrHandler().push_application()
+else:
+    StreamHandler(sys.stdout).push_application()
 
 
 SearchResults = List[SearchResult]
@@ -50,7 +54,9 @@ async def show_all_divisions(request: Request,
     client_ip = request.client.host
     if depth > 1:
         env_value = os.getenv('BLACKLISTED_CLIENTS', '')
-        blacklist = (s.strip() for s in env_value.split(','))
+        blacklist = tuple(s.strip() for s in env_value.split(','))
+        logger.info('Client IP: {}', client_ip)
+        logger.info('Blacklist: {}', blacklist)
         if client_ip in blacklist:
             logger.info('{} is blacklisted.', client_ip)
             raise HTTPException(429)
