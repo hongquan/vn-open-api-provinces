@@ -155,6 +155,11 @@ async def get_ward(code: int):
     return asdict(ward)
 
 
+@api.get('/_client_ip')
+async def get_client_ip(request: Request):
+    return request.client.host
+
+
 app.include_router(api, prefix='/api')
 
 
