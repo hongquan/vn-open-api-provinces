@@ -14,12 +14,12 @@ from pydantic import BaseSettings
 from fastapi_rfc7807 import middleware
 from lunr.exceptions import QueryParseError
 
-from vietnam_provinces import NESTED_DIVISIONS_JSON_PATH
+from vietnam_provinces import NESTED_DIVISIONS_JSON_PATH, __data_version__
 from vietnam_provinces.enums import ProvinceEnum, DistrictEnum
 from vietnam_provinces.enums.wards import WardEnum
 
 from . import __version__
-from .schema import ProvinceResponse, District as DistrictResponse, Ward as WardResponse, SearchResult
+from .schema import ProvinceResponse, District as DistrictResponse, Ward as WardResponse, SearchResult, VersionResponse
 from .search import Searcher
 
 
@@ -157,6 +157,11 @@ async def get_ward(code: int):
     except (KeyError, AttributeError):
         raise HTTPException(404, detail='invalid-ward-code')
     return asdict(ward)
+
+
+@api.get('/version', response_model=VersionResponse)
+async def get_version():
+    return VersionResponse(data_version=__data_version__)
 
 
 app.include_router(api, prefix='/api')

@@ -1,16 +1,9 @@
-const colors = require('tailwindcss/colors')
 
 module.exports = {
-  purge: [
+  content: [
     '../templates/*.html',
   ],
-  darkMode: false, // or 'media' or 'class'
   theme: {
-    colors: {
-      transparent: 'transparent',
-      current: 'currentColor',
-      ...colors,
-    },
     extend: {
       typography: {
         DEFAULT: {

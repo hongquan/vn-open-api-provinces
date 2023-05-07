@@ -88,6 +88,10 @@ class ProvinceResponse(BaseModel):
         }
 
 
+class VersionResponse(BaseModel):
+    data_version: str
+
+
 class SearchResult(BaseModel):
     name: str
     code: int
