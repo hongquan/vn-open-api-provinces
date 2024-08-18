@@ -5,7 +5,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build-tailwind": "NODE_ENV=production npx tailwindcss build -o ../static/vendor/tailwind.css --minify"
+    "build-tailwind": "NODE_ENV=production tailwindcss build -o ../static/vendor/tailwind.css --minify"
   },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",

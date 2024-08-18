@@ -36,19 +36,15 @@ Assume that you already install all dependencies.
 
     uvicorn api.main:app
 
-- To serve the landing page and run the API backend at the same time, you can run this at the top-level folder:
+- When deploying to a live system, we need to route URLs to landing page and the backend. Look into *Deployment/Nginx* for example.
 
-  .. code-block:: sh
-
-    npx vercel dev
-
-- If you modify HTML code in landing, chance that you are adding new CSS classes and you don't see update.
+- If you modify HTML code in landing page, chance that you are adding new CSS classes and you don't see update.
   It is because we configure TailwindCSS to delete all unused CSS classes. You need to build TailwindCSS again, let it scan used classes again.
   Doing so by running this command in *front-dev*:
 
   .. code-block:: sh
 
-    yarn build-tailwind
+    bun run build-tailwind
 
 
 Credit
