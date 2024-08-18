@@ -10,8 +10,7 @@ from logbook import Logger, StreamHandler
 from logbook.more import ColorizedStderrHandler
 from fastapi import FastAPI, APIRouter, Query, HTTPException, Request
 from fastapi.responses import FileResponse
-from pydantic import BaseSettings
-from fastapi_rfc7807 import middleware
+from pydantic_settings import BaseSettings
 from lunr.exceptions import QueryParseError
 
 from vietnam_provinces import NESTED_DIVISIONS_JSON_PATH, __data_version__
@@ -32,7 +31,6 @@ logger = Logger(__name__)
 app = FastAPI(title='Vietnam Provinces online API', version=__version__)
 api = APIRouter()
 settings = Settings()
-middleware.register(app)
 repo = Searcher()
 if not os.getenv('VERCEL'):
     ColorizedStderrHandler().push_application()
