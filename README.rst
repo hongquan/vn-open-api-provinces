@@ -9,7 +9,7 @@ By building an online tool on top of it, I hope to help Viet Nam standard data r
 In the end, it can help businesses collaborate better (by using the same standard data) and benefit people.
 
 
-The online tool is built to run on Vercel_ platform, so that I don't have to pay for infrastructure, because this tool is FREE to use.
+The online tool can be self-hosted. The public instance is sponsored by OMZCloud_.
 
 
 Development guide
@@ -53,10 +53,10 @@ Credit
 Brought to you by `Nguyễn Hồng Quân <author_>`_.
 
 
-.. _vercel: https://vercel.com
 .. _zola: https://www.getzola.org/
 .. _tailwindcss: https://tailwindcss.com/
 .. _python: https://www.python.org/
 .. _fastapi: https://fastapi.tiangolo.com/
 .. _author: https://quan.hoabinh.vn
 .. _VietnamProvinces: https://pypi.org/project/vietnam-provinces/
+.. _OMZCloud: https://omzcloud.vn/
