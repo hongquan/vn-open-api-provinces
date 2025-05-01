@@ -19,7 +19,7 @@ If you want to join development, this is what you want to know:
 
 The code consists of two parts:
 
-- Landing page: A static HTML page, built with Zola_. CSS is based on TailwindCSS_.
+- Landing page: A static HTML page, built with Zola_. CSS is based on UnoCSS_.
 - API backend: Written in Python_, based on FastAPI_ framework.
 
 Assume that you already install all dependencies.
@@ -38,13 +38,11 @@ Assume that you already install all dependencies.
 
 - When deploying to a live system, we need to route URLs to landing page and the backend. Look into *Deployment/Nginx* for example.
 
-- If you modify HTML code in landing page, chance that you are adding new CSS classes and you don't see update.
-  It is because we configure TailwindCSS to delete all unused CSS classes. You need to build TailwindCSS again, let it scan used classes again.
-  Doing so by running this command in *front-dev*:
+- If you modify HTML code in landing page, chance that you are adding new CSS classes and you don't see update. You need to run this command again:
 
   .. code-block:: sh
 
-    bun run build-tailwind
+    just build-css
 
 
 Credit
@@ -54,7 +52,7 @@ Brought to you by `Nguyễn Hồng Quân <author_>`_.
 
 
 .. _zola: https://www.getzola.org/
-.. _tailwindcss: https://tailwindcss.com/
+.. _unocss: https://unocss.dev/
 .. _python: https://www.python.org/
 .. _fastapi: https://fastapi.tiangolo.com/
 .. _author: https://quan.hoabinh.vn

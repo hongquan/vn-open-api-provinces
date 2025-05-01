@@ -7,5 +7,6 @@ dev-server:
 landing-page:
     zola serve -i 0.0.0.0 --base-url /
 
-build-tailwind:
-    bun run --cwd front-dev build-tailwind
+build-css:
+    bunx unocss templates/*.html -o static/css/uno.css
+    

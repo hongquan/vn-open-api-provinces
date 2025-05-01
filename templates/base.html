@@ -12,7 +12,8 @@
   <meta property='og:image' content="{{ get_url(path='img/vn-hsts.png')|safe }}">
   <meta name='google-site-verification' content='qO-FwiRjzGujttPltH5NKj4flEZry-nZgd8YtCgYhnk' />
   <link rel='icon' href="{{ get_url(path='img/map.svg')|safe }}">
-  <link rel='stylesheet' href="{{ get_url(path='vendor/tailwind.css?v=2.2.5')|safe }}">
+  <link rel='stylesheet' href="{{ get_url(path='css/uno.css?v=2.2.5')|safe }}">
+  <link rel='stylesheet' href="{{ get_url(path='css/site.css')|safe }}">
   <link
     href='https://fonts.googleapis.com/css2?family=Niramit:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap'
     rel='stylesheet'>
@@ -28,17 +29,19 @@
   </style>
 </head>
 
-<body class='min-h-screen flex flex-col' lang='vi'>
+<body class='min-h-screen flex flex-col m-0' lang='vi'>
   <header class='text-gray-600 body-font'>
-    <div class='container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center'>
-      <a href='/' class='flex title-font font-medium items-center text-gray-900 hover:text-indigo-600 mb-4 md:mb-0'>
+    <div class='lg:max-w-240 mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center'>
+      <a href='/'
+        class='flex title-font font-medium items-center text-gray-900 hover:text-indigo-600 mb-4 md:mb-0 no-underline'>
         <img src="{{ get_url(path='img/voa.svg')|safe }}" class='w-10 h-10'>
         <span class='ml-3 text-xl'>Province</span>
       </a>
       <nav class='md:ml-auto flex flex-wrap items-center text-base justify-center space-x-4'>
-        <a href='/redoc' class='hover:text-gray-900'>Tài liệu</a>
-        <a href='/examples' class='hover:text-gray-900'>Ứng dụng mẫu</a>
-        <a href='https://github.com/hongquan/vn-open-api-provinces/' class='hover:text-gray-900'>Mã nguồn</a>
+        <a href='/redoc' class='no-underline hover:text-gray-900'>Tài liệu</a>
+        <a href='/examples' class='no-underline hover:text-gray-900'>Ứng dụng mẫu</a>
+        <a href='https://github.com/hongquan/vn-open-api-provinces/' class='no-underline hover:text-gray-900'>Mã
+          nguồn</a>
       </nav>
     </div>
   </header>
@@ -46,7 +49,7 @@
   {% block main %}{% endblock main %}
 
   <footer class='text-gray-600 body-font'>
-    <div class='container px-5 py-8 mx-auto flex sm:items-center sm:flex-row flex-col'>
+    <div class='lg:max-w-240 px-5 py-8 mx-auto flex sm:items-center sm:flex-row flex-col'>
       <a class='flex title-font font-medium items-center md:justify-start justify-center text-gray-900 hover:text-green-700 min-w-36'
         href='https://portal.open-api.vn/'>
         <img src="{{ get_url(path='img/voa.svg')|safe }}" class='w-10 h-10'>
