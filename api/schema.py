@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Annotated
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, JsonValue
 
 from vietnam_provinces.base import VietNamDivisionType
 
@@ -18,7 +18,7 @@ class DivisionLevel(str, Enum):
     W = 'ward'
 
 
-_EXAMPLE_WARD = {
+_EXAMPLE_WARD: dict[str, JsonValue] = {
     'name': 'Phường Phúc Xá',
     'code': 1,
     'division_type': 'phường',
@@ -36,7 +36,7 @@ class Ward(BaseModel):
     district_code: int
 
 
-_EXAMPLE_DISTRICT = {
+_EXAMPLE_DISTRICT: dict[str, JsonValue] = {
     'name': 'Quận Ba Đình',
     'code': 1,
     'division_type': 'quận',
@@ -56,7 +56,7 @@ class District(BaseModel):
     wards: Annotated[list[Ward], Field(default_factory=list)]
 
 
-_EXAMPLE_PROVINCE = {
+_EXAMPLE_PROVINCE: dict[str, JsonValue] = {
     'name': 'Thành phố Hà Nội',
     'code': 1,
     'division_type': 'thành phố trung ương',
@@ -80,10 +80,10 @@ class VersionResponse(BaseModel):
     data_version: str
 
 
-_EXAMPLE_MATCH = {
+_EXAMPLE_MATCH: dict[str, JsonValue] = {
     'name': 'Thị xã Phú Mỹ',
     'code': 754,
-    'matches': {'mỹ': (11, 13)},
+    'matches': {'mỹ': [11, 13]},
 }
 
 

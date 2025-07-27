@@ -1,5 +1,5 @@
 import re
-from typing import Optional, Dict, Union, Tuple, List, Any
+from typing import Any, Protocol, cast
 
 from lunr import lunr
 from lunr.index import Index
@@ -15,58 +15,67 @@ from .schema import DivisionLevel, SearchResult
 logger = Logger(__name__)
 
 
-def to_search_doc(obj: Union[Province, District, Ward]):
-    doc = {
-        'code': obj.code,
-        'name': obj.name
-    }
-    doc['stripped_name'] = unidecode(doc['name'])
+class BaseRegion(Protocol):
+    code: int
+    name: str
+
+
+def to_search_doc(obj: BaseRegion):
+    doc = {'code': obj.code, 'name': obj.name}
+    doc['stripped_name'] = unidecode(obj.name)
     return doc
 
 
 class Searcher:
     ready = False
-    province_index: Optional[Index] = None
-    district_index: Optional[Index] = None
-    ward_index: Optional[Index] = None
+    province_index: Index | None = None
+    district_index: Index | None = None
+    ward_index: Index | None = None
 
     def build_index(self):
-        self.province_index = lunr(ref='code', fields=('name', 'stripped_name'),
-                                   documents=tuple(to_search_doc(p.value) for p in ProvinceEnum))
-        self.district_index = lunr(ref='code', fields=('name', 'stripped_name'),
-                                   documents=tuple(to_search_doc(p.value) for p in DistrictEnum))
-        self.ward_index = lunr(ref='code', fields=('name', 'stripped_name'),
-                               documents=tuple(to_search_doc(p.value) for p in WardEnum))
+        self.province_index = lunr(
+            ref='code', fields=('name', 'stripped_name'), documents=tuple(to_search_doc(p.value) for p in ProvinceEnum)
+        )
+        self.district_index = lunr(
+            ref='code', fields=('name', 'stripped_name'), documents=tuple(to_search_doc(p.value) for p in DistrictEnum)
+        )
+        self.ward_index = lunr(
+            ref='code', fields=('name', 'stripped_name'), documents=tuple(to_search_doc(p.value) for p in WardEnum)
+        )
         self.ready = True
 
-    def search(self, query: str, level: DivisionLevel = DivisionLevel.P,
-               district_code: Optional[int] = None,
-               province_code: Optional[int] = None) -> Tuple[SearchResult, ...]:
+    def search(
+        self,
+        query: str,
+        level: DivisionLevel = DivisionLevel.P,
+        district_code: int | None = None,
+        province_code: int | None = None,
+    ) -> tuple[SearchResult, ...]:
         if not self.ready:
             logger.warning('Index building does not finished yet!')
-            return []
+            return ()
         if level == DivisionLevel.P:
-            lresults: List[Dict[str, Any]] = self.province_index.search(query)
+            lresults: tuple[dict[str, Any], ...] = self.province_index.search(query) if self.province_index else ()
         elif level == DivisionLevel.D:
-            lresults: List[Dict[str, Any]] = self.district_index.search(query)
+            lresults = self.district_index.search(query) if self.district_index else ()
         else:
-            lresults: List[Dict[str, Any]] = self.ward_index.search(query)
+            lresults = self.ward_index.search(query) if self.ward_index else ()
         if not lresults:
-            return []
+            return ()
         # Lunrpy sometimes returns duplicate-like results
         # (same ref but different matches and scores). We will combine those.
-        dresults = {}
+        dresults: dict[int, SearchResult] = {}
         for r in lresults:
             code = int(r['ref'])
             for term, fields in r['match_data'].metadata.items():
                 if level == DivisionLevel.P:
-                    obj: Province = ProvinceEnum[f'P_{code}'].value
+                    obj: Province | District | Ward = ProvinceEnum[f'P_{code}'].value
                 elif level == DivisionLevel.D:
-                    obj: District = DistrictEnum[f'D_{code}'].value
+                    obj = DistrictEnum[f'D_{code}'].value
                     if province_code and obj.province_code != province_code:
                         continue
                 else:
-                    obj: Ward = WardEnum[f'W_{code}'].value
+                    obj = cast(Ward, WardEnum[f'W_{code}'].value)  # type: ignore[misc]
                     if district_code and obj.district_code != district_code:
                         continue
                     elif province_code:
@@ -89,10 +98,10 @@ class Searcher:
     def search_province(self, query: str):
         return self.search(query, DivisionLevel.P)
 
-    def search_district(self, query: str, province_code: Optional[int] = None):
+    def search_district(self, query: str, province_code: int | None = None):
         return self.search(query, DivisionLevel.D, province_code=province_code)
 
-    def search_ward(self, query: str, district_code: Optional[int] = None, province_code: Optional[int] = None):
+    def search_ward(self, query: str, district_code: int | None = None, province_code: int | None = None):
         return self.search(query, DivisionLevel.W, district_code, province_code)
 
 

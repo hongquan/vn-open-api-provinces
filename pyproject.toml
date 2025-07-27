@@ -5,15 +5,15 @@ authors = [{ name = "Nguyễn Hồng Quân", email = "ng.hong.quan@gmail.com" }]
 license = { text = "GPL-3.0-or-later" }
 requires-python = "<4.0,>=3.12"
 dependencies = [
-  "fastapi<1.0.0,>=0.111.0",
-  "pydantic<3.0.0,>=2.8.2",
-  "aiofiles<25.0.0,>=24.1.0",
-  "lunr<1.0.0.0,>=0.7.0.post1",
-  "Unidecode<2.0.0,>=1.3.8",
-  "vietnam-provinces<1.0.0,>=0.6.0",
-  "pydantic-settings<3.0.0,>=2.3.4",
-  "uvicorn>=0.34.0",
-  "logbook>=1.8.1",
+  "aiofiles >= 24.1.0",
+  "Unidecode >= 1.3.8",
+  "vietnam-provinces >= 0.6.0",
+  "logbook >= 1.8.1",
+  "fastapi >= 0.116.1",
+  "pydantic >= 2.11.1",
+  "lunr >= 0.8.0",
+  "uvicorn >= 0.35.0",
+  "pydantic-settings >= 2.10.1",
 ]
 dynamic = ["version"]
 
@@ -63,6 +63,18 @@ build-backend = "pdm.backend"
 
 [dependency-groups]
 dev = [
-    "pytest<9.0.0,>=8.3.2",
-    "ruff>=0.11.2",
+    "mypy >= 1.17.0",
+    "pytest >= 8.3.2",
+    "ruff >= 0.12.5",
 ]
+
+[tool.mypy]
+python_version = "3.12"
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = [
+  "logbook.*",
+  "lunr.*",
+]
+ignore_missing_imports = true
