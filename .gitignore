@@ -103,6 +103,10 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+.ruff_cache
+.pdm-build
+.pytest_cache
+
 # VS Code
 .vscode
 .idea
