@@ -5,9 +5,9 @@ from lunr import lunr
 from lunr.index import Index
 from logbook import Logger
 from unidecode import unidecode
-from vietnam_provinces import Province, District, Ward
-from vietnam_provinces.enums import ProvinceEnum, DistrictEnum
-from vietnam_provinces.enums.wards import WardEnum
+from .vendor.vietnam_provinces.base import Province, District, Ward
+from .vendor.vietnam_provinces.enums.districts import ProvinceEnum, DistrictEnum
+from .vendor.vietnam_provinces.enums.wards import WardEnum
 
 from .schema import DivisionLevel, SearchResult
 
@@ -112,3 +112,6 @@ def locate(name: str, term: str):
     if not m:
         raise ValueError
     return (m.start(0), m.end(0))
+
+
+repo = Searcher()

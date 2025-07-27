@@ -1,178 +1,41 @@
 import os
 import sys
-from dataclasses import asdict
-from itertools import groupby
-from operator import attrgetter
-from collections import deque
-from typing import Deque, FrozenSet, Any, Optional
-
 from logbook import Logger, StreamHandler
 from logbook.more import ColorizedStderrHandler
-from fastapi import FastAPI, APIRouter, Query, HTTPException, Request
-from fastapi.responses import FileResponse
-from pydantic import JsonValue
+from fastapi import FastAPI, Request
+from fastapi.responses import RedirectResponse
 from pydantic_settings import BaseSettings
-from lunr.exceptions import QueryParseError
-
-from vietnam_provinces import NESTED_DIVISIONS_JSON_PATH, __data_version__
-from vietnam_provinces.enums import ProvinceEnum, DistrictEnum
-from vietnam_provinces.enums.wards import WardEnum
+from contextlib import asynccontextmanager
 
 from . import __version__
-from .schema import ProvinceResponse, District as DistrictResponse, Ward as WardResponse, SearchResult, VersionResponse
-from .search import Searcher
-
+from .v1 import api_v1
 
 class Settings(BaseSettings):
     tracking: bool = False
     cdn_cache_interval: int = 30
 
-
 logger = Logger(__name__)
-app = FastAPI(title='Vietnam Provinces online API', version=__version__)
-api = APIRouter()
-settings = Settings()
-repo = Searcher()
+
 if not os.getenv('VERCEL'):
     ColorizedStderrHandler().push_application()
 else:
     StreamHandler(sys.stdout).push_application()
 
+@asynccontextmanager
+async def lifespan(app):
+    from .search import repo
+    logger.debug('To build search index')
+    repo.build_index()
+    logger.debug('Ready to search')
+    yield
 
-SearchResults = list[SearchResult]
-SearchQuery = Query(
-    ...,
-    title='Query string for search',
-    example='Hiền Hòa',
-    description='Follow [lunr](https://lunr.readthedocs.io/en/latest/usage.html#using-query-strings) syntax.',
-)
+app = FastAPI(title='Vietnam Provinces online API', version=__version__, lifespan=lifespan, redoc_url="/ref-doc/v1", openapi_url="/api/v1/openapi.json")
+settings = Settings()
+app.include_router(api_v1, prefix='/api/v1')
 
-
-@api.get('/', response_model=list[ProvinceResponse])
-async def show_all_divisions(
-    request: Request,
-    depth: int = Query(
-        1, ge=1, le=3, title='Show down to subdivisions', description='2: show districts; 3: show wards'
-    ),
-):
-    client_ip = request.client.host if request.client else None
-    if depth > 1:
-        env_value = os.getenv('BLACKLISTED_CLIENTS', '')
-        blacklist = filter(None, (s.strip() for s in env_value.split(',')))
-        if not client_ip or client_ip in blacklist:
-            logger.info('{} is blacklisted.', client_ip)
-            raise HTTPException(429)
-    if depth >= 3:
-        return FileResponse(NESTED_DIVISIONS_JSON_PATH)
-    if depth == 2:
-        provinces: Deque[dict[str, JsonValue]] = deque()
-        for k, group in groupby(DistrictEnum, key=attrgetter('value.province_code')):
-            p = asdict(ProvinceEnum[f'P_{k}'].value)
-            p['districts'] = tuple(asdict(d.value) for d in group)
-            provinces.append(p)
-        return provinces
-    return tuple(asdict(p.value) for p in ProvinceEnum)
-
-
-@api.get('/p/', response_model=list[ProvinceResponse])
-async def list_provinces():
-    return tuple(asdict(p.value) for p in ProvinceEnum)
-
-
-@api.get('/p/search/', response_model=SearchResults)
-async def search_provinces(q: str = SearchQuery):
-    try:
-        res = repo.search_province(q)
-        return res
-    except QueryParseError:
-        raise HTTPException(status_code=422, detail='unrecognized-search-query')
-
-
-@api.get('/p/{code}', response_model=ProvinceResponse)
-async def get_province(
-    code: int,
-    depth: int = Query(
-        1, ge=1, le=3, title='Show down to subdivisions', description='2: show districts; 3: show wards'
-    ),
-):
-    try:
-        province = ProvinceEnum[f'P_{code}'].value
-    except (KeyError, AttributeError):
-        raise HTTPException(404, detail='invalid-province-code')
-    response = asdict(province)
-    districts: dict[int, dict[str, JsonValue | tuple[dict[str, Any], ...]]] = {}
-    if depth >= 2:
-        districts = {d.value.code: asdict(d.value) for d in DistrictEnum if d.value.province_code == code}
-    if depth == 3:
-        district_codes: FrozenSet[int] = frozenset(districts.keys())
-        for k, group in groupby(WardEnum, key=attrgetter('value.district_code')):
-            if k not in district_codes:
-                continue
-            districts[k]['wards'] = tuple(asdict(w.value) for w in group)
-    response['districts'] = tuple(districts.values())
-    return response
-
-
-@api.get('/d/', response_model=list[DistrictResponse])
-async def list_districts():
-    return tuple(asdict(d.value) for d in DistrictEnum)
-
-
-@api.get('/d/search/', response_model=SearchResults)
-async def search_districts(q: str = SearchQuery, p: Optional[int] = Query(None, title='Province code to filter')):
-    try:
-        return repo.search_district(q, p)
-    except QueryParseError:
-        raise HTTPException(status_code=422, detail='unrecognized-search-query')
-
-
-@api.get('/d/{code}', response_model=DistrictResponse)
-async def get_district(
-    code: int, depth: int = Query(1, ge=1, le=2, title='Show down to subdivisions', description='2: show wards')
-):
-    try:
-        district = DistrictEnum[f'D_{code}'].value
-    except (KeyError, AttributeError):
-        raise HTTPException(404, detail='invalid-district-code')
-    response = asdict(district)
-    if depth == 2:
-        response['wards'] = tuple(asdict(w.value) for w in iter(WardEnum) if w.value.district_code == code)
-    return response
-
-
-@api.get('/w/', response_model=list[WardResponse])
-async def list_wards():
-    return tuple(asdict(w.value) for w in WardEnum)
-
-
-@api.get('/w/search/', response_model=SearchResults)
-async def search_wards(
-    q: str = SearchQuery,
-    d: Optional[int] = Query(None, title='District code to filter'),
-    p: Optional[int] = Query(None, title='Province code to filter, ignored if district is given'),
-):
-    try:
-        return repo.search_ward(q, d, p)
-    except QueryParseError:
-        raise HTTPException(status_code=422, detail='unrecognized-search-query')
-
-
-@api.get('/w/{code}', response_model=WardResponse)
-async def get_ward(code: int):
-    try:
-        ward = WardEnum[f'W_{code}'].value  # type: ignore[misc]
-    except (KeyError, AttributeError):
-        raise HTTPException(404, detail='invalid-ward-code')
-    return asdict(ward)
-
-
-@api.get('/version', response_model=VersionResponse)
-async def get_version():
-    return VersionResponse(data_version=__data_version__)
-
-
-app.include_router(api, prefix='/api')
-
+@app.get("/api/", include_in_schema=False)
+def redirect_api():
+    return RedirectResponse(url="/api/v1/", status_code=302)
 
 @app.middleware('http')
 async def guide_cdn_cache(request: Request, call_next):
@@ -180,9 +43,3 @@ async def guide_cdn_cache(request: Request, call_next):
     # Ref: https://vercel.com/docs/edge-network/headers#cache-control-header
     response.headers['Cache-Control'] = f's-maxage={settings.cdn_cache_interval}, stale-while-revalidate'
     return response
-
-
-# Vercel ASGI server doesn't support "startup" event, so we have to run this code in global
-logger.debug('To build search index')
-repo.build_index()
-logger.debug('Ready to search')
