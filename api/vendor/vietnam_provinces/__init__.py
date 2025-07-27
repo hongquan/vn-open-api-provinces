@@ -1,9 +1,10 @@
-import os
+from pathlib import Path
 
-# Vendor copy of vietnam_provinces library version 0.6.0
+from .base import VietNamDivisionType, Province, District, Ward
 
-__data_version__ = "0.6.0"
 
-# Path to the nested divisions JSON file.
-# It is assumed that the data file is stored in the "data" directory inside this package.
-NESTED_DIVISIONS_JSON_PATH = os.path.join(os.path.dirname(__file__), "data", "nested_divisions.json")
+__version__ = '0.6.0'
+# Data retrieval date, in UTC
+__data_version__ = '2025-01-04'
+NESTED_DIVISIONS_JSON_PATH = Path(__file__).parent / 'data' / 'nested-divisions.json'
+FLAT_DIVISIONS_JSON_PATH = Path(__file__).parent / 'data' / 'flat-divisions.json'
