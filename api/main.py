@@ -1,6 +1,7 @@
 import os
 import sys
 from contextlib import asynccontextmanager
+from http import HTTPStatus
 
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
@@ -50,7 +51,7 @@ app.include_router(api_v2, prefix='/api/v2')
 
 @app.get('/api/', include_in_schema=False)
 def redirect_api():
-    return RedirectResponse(url='/api/v1/', status_code=302)
+    return RedirectResponse(url='/api/v1/', status_code=HTTPStatus.TEMPORARY_REDIRECT)
 
 
 @app.middleware('http')

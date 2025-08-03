@@ -1,7 +1,8 @@
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field, JsonValue
-from vietnam_provinces import VietNamDivisionType, Ward
+from pydantic import ConfigDict, Field, JsonValue
+from pydantic.dataclasses import dataclass
+from vietnam_provinces import Province, Ward
 
 
 _EXAMPLE_PROVINCE: dict[str, JsonValue] = {
@@ -13,11 +14,6 @@ _EXAMPLE_PROVINCE: dict[str, JsonValue] = {
 }
 
 
-class ProvinceResponse(BaseModel):
-    model_config = ConfigDict(json_schema_extra={'examples': [_EXAMPLE_PROVINCE]})
-    name: str
-    code: int
-    division_type: VietNamDivisionType
-    codename: str
-    phone_code: int
-    wards: Annotated[list[Ward], Field(default_factory=list)]
+@dataclass(frozen=True, config=ConfigDict(json_schema_extra={'examples': [_EXAMPLE_PROVINCE]}))
+class ProvinceResponse(Province):
+    wards: Annotated[tuple[Ward, ...], Field(default_factory=list)]
