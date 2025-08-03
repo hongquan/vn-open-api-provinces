@@ -1,18 +1,22 @@
 import os
 import sys
-from logbook import Logger, StreamHandler
-from logbook.more import ColorizedStderrHandler
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
+from logbook import Logger, StreamHandler
+from logbook.more import ColorizedStderrHandler
 from pydantic_settings import BaseSettings
-from contextlib import asynccontextmanager
 
 from . import __version__
 from .v1 import api_v1
+from .v2 import api_v2
+
 
 class Settings(BaseSettings):
     tracking: bool = False
     cdn_cache_interval: int = 30
+
 
 logger = Logger(__name__)
 
@@ -21,21 +25,33 @@ if not os.getenv('VERCEL'):
 else:
     StreamHandler(sys.stdout).push_application()
 
+
 @asynccontextmanager
 async def lifespan(app):
     from .search import repo
+
     logger.debug('To build search index')
     repo.build_index()
     logger.debug('Ready to search')
     yield
 
-app = FastAPI(title='Vietnam Provinces online API', version=__version__, lifespan=lifespan, redoc_url="/ref-doc/v1", openapi_url="/api/v1/openapi.json")
+
+app = FastAPI(
+    title='Vietnam Provinces online API',
+    version=__version__,
+    lifespan=lifespan,
+    redoc_url='/ref-doc/v1',
+    openapi_url='/api/v1/openapi.json',
+)
 settings = Settings()
 app.include_router(api_v1, prefix='/api/v1')
+app.include_router(api_v2, prefix='/api/v2')
 
-@app.get("/api/", include_in_schema=False)
+
+@app.get('/api/', include_in_schema=False)
 def redirect_api():
-    return RedirectResponse(url="/api/v1/", status_code=302)
+    return RedirectResponse(url='/api/v1/', status_code=302)
+
 
 @app.middleware('http')
 async def guide_cdn_cache(request: Request, call_next):

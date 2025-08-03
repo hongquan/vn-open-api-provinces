@@ -1,15 +1,15 @@
 import re
 from typing import Any, Protocol, cast
 
+from logbook import Logger
 from lunr import lunr
 from lunr.index import Index
-from logbook import Logger
 from unidecode import unidecode
-from .vendor.vietnam_provinces.base import Province, District, Ward
-from .vendor.vietnam_provinces.enums.districts import ProvinceEnum, DistrictEnum
-from .vendor.vietnam_provinces.enums.wards import WardEnum
 
-from .schema import DivisionLevel, SearchResult
+from .schema_v1 import DivisionLevel, SearchResult
+from .vendor.vietnam_provinces.base import District, Province, Ward
+from .vendor.vietnam_provinces.enums.districts import DistrictEnum, ProvinceEnum
+from .vendor.vietnam_provinces.enums.wards import WardEnum
 
 
 logger = Logger(__name__)

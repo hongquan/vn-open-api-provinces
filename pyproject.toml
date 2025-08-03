@@ -7,13 +7,14 @@ requires-python = "<4.0,>=3.12"
 dependencies = [
   "aiofiles >= 24.1.0",
   "Unidecode >= 1.3.8",
-  "vietnam-provinces >= 0.6.0",
+  "vietnam-provinces @ git+https://github.com/sunshine-tech/VietnamProvinces.git@28f76fc",
   "logbook >= 1.8.1",
   "fastapi >= 0.116.1",
   "pydantic >= 2.11.1",
   "lunr >= 0.8.0",
   "uvicorn >= 0.35.0",
   "pydantic-settings >= 2.10.1",
+  "fastenumplus>=1.4.0",
 ]
 dynamic = ["version"]
 
@@ -49,13 +50,16 @@ target-version = "py312"
 
 [tool.ruff.lint]
 # Enable Pyflakes `E` and `F` codes by default.
-select = ["E", "F"]
+select = ['E', 'F', 'I']
 ignore = []
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.ruff.format]
 quote-style = "single"
+
+[tool.ruff.lint.isort]
+lines-after-imports = 2
 
 [build-system]
 requires = ["pdm-backend"]
@@ -66,6 +70,9 @@ dev = [
     "mypy >= 1.17.0",
     "pytest >= 8.3.2",
     "ruff >= 0.12.5",
+]
+lint = [
+    "ruff>=0.12.5",
 ]
 
 [tool.mypy]

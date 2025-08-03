@@ -1,20 +1,22 @@
 import os
+from collections import deque
 from dataclasses import asdict
 from itertools import groupby
 from operator import attrgetter
-from collections import deque
-from typing import Deque, FrozenSet, Any
+from typing import Any, Deque, FrozenSet
 
-from fastapi import APIRouter, Query, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import FileResponse
 from lunr.exceptions import QueryParseError
 
+from .schema_v1 import District as DistrictResponse
+from .schema_v1 import ProvinceResponse, SearchResult, VersionResponse
+from .schema_v1 import Ward as WardResponse
+from .search import repo
 from .vendor.vietnam_provinces import NESTED_DIVISIONS_JSON_PATH, __data_version__
-from .vendor.vietnam_provinces.enums.districts import ProvinceEnum, DistrictEnum
+from .vendor.vietnam_provinces.enums.districts import DistrictEnum, ProvinceEnum
 from .vendor.vietnam_provinces.enums.wards import WardEnum
 
-from .schema import ProvinceResponse, District as DistrictResponse, Ward as WardResponse, SearchResult, VersionResponse
-from .search import repo
 
 api_v1 = APIRouter()
 
@@ -25,6 +27,7 @@ SearchQuery = Query(
     example='Hiền Hòa',
     description='Follow [lunr](https://lunr.readthedocs.io/en/latest/usage.html#using-query-strings) syntax.',
 )
+
 
 @api_v1.get('/', response_model=list[ProvinceResponse])
 async def show_all_divisions(
@@ -50,9 +53,11 @@ async def show_all_divisions(
         return provinces
     return tuple(asdict(p.value) for p in ProvinceEnum)
 
+
 @api_v1.get('/p/', response_model=list[ProvinceResponse])
 async def list_provinces():
     return tuple(asdict(p.value) for p in ProvinceEnum)
+
 
 @api_v1.get('/p/search/', response_model=SearchResults)
 async def search_provinces(q: str = SearchQuery):
@@ -61,6 +66,7 @@ async def search_provinces(q: str = SearchQuery):
         return res
     except QueryParseError:
         raise HTTPException(status_code=422, detail='unrecognized-search-query')
+
 
 @api_v1.get('/p/{code}', response_model=ProvinceResponse)
 async def get_province(
@@ -86,9 +92,11 @@ async def get_province(
     response['districts'] = tuple(districts.values())
     return response
 
+
 @api_v1.get('/d/', response_model=list[DistrictResponse])
 async def list_districts():
     return tuple(asdict(d.value) for d in DistrictEnum)
+
 
 @api_v1.get('/d/search/', response_model=SearchResults)
 async def search_districts(q: str = SearchQuery, p: int | None = Query(None, title='Province code to filter')):
@@ -96,6 +104,7 @@ async def search_districts(q: str = SearchQuery, p: int | None = Query(None, tit
         return repo.search_district(q, p)
     except QueryParseError:
         raise HTTPException(status_code=422, detail='unrecognized-search-query')
+
 
 @api_v1.get('/d/{code}', response_model=DistrictResponse)
 async def get_district(
@@ -110,9 +119,11 @@ async def get_district(
         response['wards'] = tuple(asdict(w.value) for w in iter(WardEnum) if w.value.district_code == code)
     return response
 
+
 @api_v1.get('/w/', response_model=list[WardResponse])
 async def list_wards():
     return tuple(asdict(w.value) for w in WardEnum)
+
 
 @api_v1.get('/w/search/', response_model=SearchResults)
 async def search_wards(
@@ -125,6 +136,7 @@ async def search_wards(
     except QueryParseError:
         raise HTTPException(status_code=422, detail='unrecognized-search-query')
 
+
 @api_v1.get('/w/{code}', response_model=WardResponse)
 async def get_ward(code: int):
     try:
@@ -132,6 +144,7 @@ async def get_ward(code: int):
     except (KeyError, AttributeError):
         raise HTTPException(404, detail='invalid-ward-code')
     return asdict(ward)
+
 
 @api_v1.get('/version', response_model=VersionResponse)
 async def get_version():
