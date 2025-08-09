@@ -1,8 +1,7 @@
 from enum import Enum
 from typing import Annotated
 
-from pydantic import BaseModel, Field, ConfigDict, JsonValue
-
+from pydantic import BaseModel, ConfigDict, Field, JsonValue
 from vietnam_provinces.base import VietNamDivisionType
 
 

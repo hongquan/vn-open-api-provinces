@@ -1,55 +1,60 @@
-{% extends 'base.html' %} {% block title %} {{ section.title }}{% endblock title
-%} {% block main %}
+{% extends 'base.html' %}
+{% block title %}{{ section.title }}{% endblock title %}
+{% block main %}
 <main class="text-gray-600 body-font flex-1">
-    <div
-        class="lg:max-w-240 mx-auto flex px-5 items-center justify-center flex-col"
-    >
-        <img
-            class="lg:w-2/6 md:w-3/6 w-5/6 mb-10 object-cover object-center rounded-sm"
-            alt="hero"
-            src="{{ get_url(path='img/vn-hsts.svg')|safe }}"
-        />
-        <div class="text-center lg:w-2/3 w-full">
-            <h1
-                class="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900"
-            >
-                Tỉnh thành Việt Nam
-            </h1>
-            <p class="mb-8 leading-relaxed">
-                API HTTP cho phép lấy danh sách tỉnh thành, quận huyện, phường
-                xã Việt Nam. Một ứng dụng của thư viện
-                <a
-                    href="https://pypi.org/project/vietnam-provinces/"
-                    class="underline text-blue-700 hover:text-blue-500"
-                    >VietnamProvinces</a
-                >.
-            </p>
-            <div
-                class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 justify-center"
-            >
-                <a
-                    href="/ref-doc/v1"
-                    class="text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded-sm text-lg no-underline"
-                    >Tài liệu</a
-                >
-                <a
-                    href="/examples"
-                    class="text-gray-700 bg-gray-100 border-0 py-2 px-6 focus:outline-none hover:bg-gray-200 rounded-sm text-lg no-underline"
-                    >Ứng dụng mẫu</a
-                >
-                <a
-                    href="https://httpie.io/run"
-                    class="text-gray-700 bg-gray-100 border-0 py-2 px-6 focus:outline-none hover:bg-gray-200 rounded-sm text-lg no-underline"
-                    >Thử online</a
-                >
-            </div>
-        </div>
+  <div class="lg:max-w-240 mx-auto flex px-5 items-center justify-center flex-col">
+    <img class="lg:w-2/6 md:w-3/6 w-5/6 mb-10 object-cover object-center rounded-sm" alt="hero"
+      src="{{ get_url(path='img/vn-hsts.svg')|safe }}" />
+    <div class="text-center lg:w-2/3 w-full">
+      <h1 class="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900">
+        Tỉnh thành Việt Nam
+      </h1>
+      <p class="mb-8 leading-relaxed">
+        API HTTP cho phép lấy danh sách tỉnh thành, quận huyện, phường
+        xã Việt Nam. Một ứng dụng của thư viện
+        <a href="https://pypi.org/project/vietnam-provinces/"
+          class="underline text-blue-700 hover:text-blue-500">VietnamProvinces</a>.
+      </p>
+      <table class='mx-auto'>
+        <tbody>
+          <tr>
+            <th class='p-4'>
+              Phiên bản 1
+              <div class='font-light'>Trước sáp nhập 07/2025</div>
+            </th>
+            <td class='py-2'>
+              <a href='/api/v1/redoc'
+                class="text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded-sm text-lg no-underline">Tài
+                liệu</a>
+            </td>
+            <td class='p-2'>
+              <a href='/examples'
+                class="text-gray-700 bg-gray-100 border-0 py-2 px-6 focus:outline-none hover:bg-gray-200 rounded-sm text-lg no-underline">Ứng
+                dụng mẫu</a>
+            </td>
+          </tr>
+          <tr>
+            <th class='p-4'>
+              Phiên bản 2
+              <div class='font-light'>Sau sáp nhập 07/2025</div>
+            </th>
+            <td class='py-2'>
+              <a href='/api/v2/redoc'
+                class="text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded-sm text-lg no-underline">Tài
+                liệu</a>
+            </td>
+            <td class='py-2'>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div class="text-center lg:w-2/3 w-full mx-auto mt-10 text-red-500">
-        <strong>Lưu ý:</strong>
-        Vì thiếu chi phí duy trì cơ sở hạ tầng, vui lòng không lạm dụng tham số
-        <code class="text-blue-500">depth=3</code>.
-    </div>
-    <div class="max-w-200 mx-auto mt-8 px-2">{{ section.content|safe }}</div>
+  </div>
+  <div class="text-center lg:w-2/3 w-full mx-auto mt-10 text-red-500">
+    <strong>Lưu ý:</strong>
+    Vì thiếu chi phí duy trì cơ sở hạ tầng, vui lòng không lạm dụng tham số
+    <code class="text-blue-500">depth=3</code>.
+  </div>
+  <div class="max-w-200 mx-auto mt-8 px-2">{{ section.content|safe }}</div>
 </main>
 {% endblock main %}

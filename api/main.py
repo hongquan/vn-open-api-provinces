@@ -41,8 +41,6 @@ app = FastAPI(
     title='Vietnam Provinces online API',
     version=__version__,
     lifespan=lifespan,
-    # redoc_url='/ref-doc/v1',
-    # openapi_url='/api/v1/openapi.json',
 )
 settings = Settings()
 app.mount('/api/v1', api_v1)

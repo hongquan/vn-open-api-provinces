@@ -5,7 +5,7 @@ from itertools import groupby
 from operator import attrgetter
 from typing import Any, Deque, FrozenSet
 
-from fastapi import APIRouter, FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse
 from lunr.exceptions import QueryParseError
 
