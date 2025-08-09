@@ -7,10 +7,11 @@ from fastapi_problem.error import NotFoundProblem
 from fastapi_problem.handler import add_exception_handler, new_exception_handler
 from vietnam_provinces import NESTED_DIVISIONS_JSON_PATH, Province, ProvinceCode, Ward, WardCode
 
+from . import __version__
 from .schema_v2 import ProvinceResponse, WardResponse
 
 
-api_v2 = FastAPI()
+api_v2 = FastAPI(title='Vietnam Provinces online API (2025)', version=__version__)
 eh = new_exception_handler()
 add_exception_handler(api_v2, eh)
 
@@ -23,7 +24,7 @@ class WardNotExistError(NotFoundProblem):
     title = 'Ward not exist'
 
 
-@api_v2.get('/', response_model=list[ProvinceResponse])
+@api_v2.get('/', response_model=tuple[ProvinceResponse, ...])
 def show_all_divisions(request: Request, depth: int = Query(1, ge=1, le=2, title='Show down to subdivisions')):
     client_ip = request.client.host if request.client else None
     if depth > 1:

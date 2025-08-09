@@ -1,5 +1,6 @@
 import os
 from collections import deque
+from contextlib import asynccontextmanager
 from dataclasses import asdict
 from itertools import groupby
 from operator import attrgetter
@@ -7,8 +8,10 @@ from typing import Any, Deque, FrozenSet
 
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse
+from logbook import Logger
 from lunr.exceptions import QueryParseError
 
+from . import __version__
 from .schema_v1 import District as DistrictResponse
 from .schema_v1 import ProvinceResponse, SearchResult, VersionResponse
 from .schema_v1 import Ward as WardResponse
@@ -18,7 +21,20 @@ from .vendor.vietnam_provinces.enums.districts import DistrictEnum, ProvinceEnum
 from .vendor.vietnam_provinces.enums.wards import WardEnum
 
 
-api_v1 = FastAPI()
+logger = Logger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app):
+    from .search import repo
+
+    logger.debug('To build search index')
+    repo.build_index()
+    logger.debug('Ready to search')
+    yield
+
+
+api_v1 = FastAPI(title='Vietnam Provinces online API', version=__version__, lifespan=lifespan)
 
 SearchResults = list[SearchResult]
 SearchQuery = Query(

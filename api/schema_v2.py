@@ -24,7 +24,7 @@ _EXAMPLE_WARD: dict[str, JsonValue] = {
 
 @dataclass(frozen=True, config=ConfigDict(json_schema_extra={'examples': [_EXAMPLE_PROVINCE]}))
 class ProvinceResponse(Province):
-    wards: Annotated[tuple[Ward, ...], Field(default_factory=list)]
+    wards: Annotated[tuple[Ward, ...], Field(default_factory=tuple)]
 
 
 @dataclass(frozen=True, config=ConfigDict(json_schema_extra={'examples': [_EXAMPLE_WARD]}))

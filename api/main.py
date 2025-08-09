@@ -1,6 +1,5 @@
 import os
 import sys
-from contextlib import asynccontextmanager
 from http import HTTPStatus
 
 from fastapi import FastAPI, Request
@@ -27,20 +26,9 @@ else:
     StreamHandler(sys.stdout).push_application()
 
 
-@asynccontextmanager
-async def lifespan(app):
-    from .search import repo
-
-    logger.debug('To build search index')
-    repo.build_index()
-    logger.debug('Ready to search')
-    yield
-
-
 app = FastAPI(
     title='Vietnam Provinces online API',
     version=__version__,
-    lifespan=lifespan,
 )
 settings = Settings()
 app.mount('/api/v1', api_v1)
