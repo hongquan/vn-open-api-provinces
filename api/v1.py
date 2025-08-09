@@ -5,7 +5,7 @@ from itertools import groupby
 from operator import attrgetter
 from typing import Any, Deque, FrozenSet
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse
 from lunr.exceptions import QueryParseError
 
@@ -18,7 +18,7 @@ from .vendor.vietnam_provinces.enums.districts import DistrictEnum, ProvinceEnum
 from .vendor.vietnam_provinces.enums.wards import WardEnum
 
 
-api_v1 = APIRouter()
+api_v1 = FastAPI()
 
 SearchResults = list[SearchResult]
 SearchQuery = Query(

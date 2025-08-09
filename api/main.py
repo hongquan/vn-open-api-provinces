@@ -41,12 +41,12 @@ app = FastAPI(
     title='Vietnam Provinces online API',
     version=__version__,
     lifespan=lifespan,
-    redoc_url='/ref-doc/v1',
-    openapi_url='/api/v1/openapi.json',
+    # redoc_url='/ref-doc/v1',
+    # openapi_url='/api/v1/openapi.json',
 )
 settings = Settings()
-app.include_router(api_v1, prefix='/api/v1')
-app.include_router(api_v2, prefix='/api/v2')
+app.mount('/api/v1', api_v1)
+app.mount('/api/v2', api_v2)
 
 
 @app.get('/api/', include_in_schema=False)

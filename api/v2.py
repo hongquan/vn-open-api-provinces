@@ -2,14 +2,14 @@ import os
 from dataclasses import asdict
 from http import HTTPStatus
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse
 from vietnam_provinces import NESTED_DIVISIONS_JSON_PATH, Province, ProvinceCode, Ward
 
 from .schema_v2 import ProvinceResponse
 
 
-api_v2 = APIRouter()
+api_v2 = FastAPI()
 
 
 @api_v2.get('/', response_model=list[ProvinceResponse])

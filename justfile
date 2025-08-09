@@ -2,7 +2,7 @@ _default:
     just --list
 
 dev-server:
-    uv run uvicorn api.main:app --reload --host 0.0.0.0
+    uv run granian api.main:app --interface asgi --reload --host 0.0.0.0
 
 landing-page:
     zola serve -i 0.0.0.0 --base-url /
