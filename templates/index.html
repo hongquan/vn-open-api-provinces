@@ -1,25 +1,74 @@
 {% extends 'base.html' %}
-
-{% block title %} {{ section.title }}{% endblock title %}
-
+{% block title %}{{ section.title }}{% endblock title %}
 {% block main %}
-  <main class='text-gray-600 body-font flex-1'>
-    <div class='container mx-auto flex px-5 items-center justify-center flex-col'>
-      <img class='lg:w-2/6 md:w-3/6 w-5/6 mb-10 object-cover object-center rounded' alt='hero' src="{{ get_url(path='img/vn-hsts.svg')|safe }}">
-      <div class='text-center lg:w-2/3 w-full'>
-        <h1 class='title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900'>Tỉnh thành Việt Nam</h1>
-        <p class='mb-8 leading-relaxed'>API HTTP cho phép lấy danh sách tỉnh thành, quận huyện, phường xã Việt Nam. Một ứng dụng của thư viện <a href='https://pypi.org/project/vietnam-provinces/' class='underline text-blue-700 hover:text-blue-500'>VietnamProvinces</a>.</p>
-        <div class='flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 justify-center'>
-          <a href='/redoc' class='text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg'>Tài liệu</a>
-          <a href='/examples' class='text-gray-700 bg-gray-100 border-0 py-2 px-6 focus:outline-none hover:bg-gray-200 rounded text-lg'>Ứng dụng mẫu</a>
-          <a href='https://httpie.io/run' class='text-gray-700 bg-gray-100 border-0 py-2 px-6 focus:outline-none hover:bg-gray-200 rounded text-lg'>Thử online</a>
+<main class="text-gray-600 body-font flex-1">
+  <div class="lg:max-w-240 mx-auto flex px-5 items-center justify-center flex-col">
+    <img class="lg:w-2/6 md:w-3/6 w-5/6 mb-10 object-cover object-center rounded-sm" alt="hero"
+      src="{{ get_url(path='img/vn-hsts.svg')|safe }}" />
+    <div class="text-center lg:w-2/3 w-full">
+      <h1 class="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900">
+        Tỉnh thành Việt Nam
+      </h1>
+      <p class="mb-8 leading-relaxed">
+        API HTTP cho phép lấy danh sách tỉnh thành, quận huyện, phường
+        xã Việt Nam. Một ứng dụng của thư viện
+        <a href="https://pypi.org/project/vietnam-provinces/"
+          class="underline text-blue-700 hover:text-blue-500">VietnamProvinces</a>.
+      </p>
+    </div>
+  </div>
+  <dl class='mx-auto max-w-md px-2 sm:px-0'>
+    <dt class='font-bold'>Phiên bản 1</dt>
+    <dd>
+      <div class='font-light p-2'>Trước sáp nhập tỉnh thành 07/2025</div>
+      <div class='flex flex-row space-x-2'>
+        <div>
+          <pre class='p-2'><code>/api/v1/</code></pre>
+        </div>
+        <div>
+          <a href='/api/v1/redoc'
+            class="text-white bg-indigo-500 border-0 py-2 px-2 md:px-6 focus:outline-none hover:bg-indigo-600 rounded-sm md:text-lg no-underline">
+            Tài liệu
+          </a>
+        </div>
+        <div>
+          <a href='/examples'
+            class="text-gray-700 bg-gray-100 border-0 py-2 px-2 md:px-6 focus:outline-none hover:bg-gray-200 rounded-sm md:text-lg no-underline">
+            Ứng dụng mẫu
+          </a>
         </div>
       </div>
-    </div>
-    <div class='text-center lg:w-2/3 w-full mx-auto mt-10 text-red-500'>
-      <strong>Lưu ý:</strong>
-      Vì thiếu chi phí duy trì cơ sở hạ tầng, vui lòng không lạm dụng tham số <code class='text-blue-500'>depth=3</code>.
-    </div>
-    <div class='prose container mx-auto mt-8 px-2'>{{ section.content|safe }}</div>
-  </main>
+    </dd>
+  </dl>
+  <dl class='mx-auto max-w-md mt-8 px-2 sm:px-0'>
+    <dt class='font-bold'>Phiên bản 2</dt>
+    <dd>
+      <div class='font-light p-2'>
+        Sau sáp nhập tỉnh thành 07/2025<br>
+        (Chưa chính thức)
+      </div>
+      <div class='flex flex-row space-x-2'>
+        <pre class='p-2'><code>/api/v2/</code></pre>
+        <div>
+          <a href='/api/v2/redoc'
+            class="text-white bg-indigo-500 border-0 py-2 px-2 md:px-6 focus:outline-none hover:bg-indigo-600 rounded-sm md:text-lg no-underline">
+            Tài liệu
+          </a>
+        </div>
+        <div>
+          <a href='https://vn-provinces-lustre-demo.netlify.app/'
+            class="text-gray-700 bg-gray-100 border-0 py-2 px-2 md:px-6 focus:outline-none hover:bg-gray-200 rounded-sm md:text-lg no-underline">
+            Ứng dụng mẫu
+          </a>
+        </div>
+      </div>
+    </dd>
+  </dl>
+  <div class="text-center lg:w-2/3 w-full mx-auto mt-10 text-red-500">
+    <strong>Lưu ý:</strong>
+    Vì thiếu chi phí duy trì cơ sở hạ tầng, vui lòng không lạm dụng tham số
+    <code class="text-blue-500">depth=3</code>.
+  </div>
+  <div class="max-w-200 mx-auto mt-8 px-2">{{ section.content|safe }}</div>
+</main>
 {% endblock main %}

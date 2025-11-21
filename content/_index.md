@@ -8,13 +8,13 @@ Ví dụ với [HTTPie](https://httpie.io/):
 #### Liệt kê:
 
 ```sh
-http -v https://provinces.open-api.vn/api/ depth==2
+http -v https://provinces.open-api.vn/api/v1/ depth==2
 ```
 
 Request:
 
 ```http
-GET /api/?depth=2 HTTP/1.1
+GET /api/v1/?depth=2 HTTP/1.1
 Host: provinces.open-api.vn
 ```
 
@@ -60,13 +60,13 @@ Transfer-Encoding: chunked
 #### Tìm kiếm:
 
 ```sh
-http -v https://provinces.open-api.vn/api/d/search/ q==Y
+http -v https://provinces.open-api.vn/api/v1/d/search/ q==Y
 ```
 
 Request:
 
 ```http
-GET /api/d/search/?q=Y HTTP/1.1
+GET /api/v1/d/search/?q=Y HTTP/1.1
 Host: provinces.open-api.vn
 ```
 

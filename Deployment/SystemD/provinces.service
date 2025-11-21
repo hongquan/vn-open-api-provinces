@@ -1,0 +1,19 @@
+[Unit]
+Description=Province API backend
+
+[Service]
+User=user
+Group=user
+
+Type=simple
+WorkingDirectory=/opt/Provinces/provinces
+# Create directory /run/provinces and set appropriate permission
+RuntimeDirectory=provinces 
+RuntimeDirectoryPreserve=yes
+ExecStart=/opt/Provinces/venv/bin/uvicorn api.main:app --uds /run/provinces/web.sock --forwarded-allow-ips='*'
+TimeoutStopSec=20
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

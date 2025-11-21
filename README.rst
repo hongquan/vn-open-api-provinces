@@ -9,7 +9,7 @@ By building an online tool on top of it, I hope to help Viet Nam standard data r
 In the end, it can help businesses collaborate better (by using the same standard data) and benefit people.
 
 
-The online tool is built to run on Vercel_ platform, so that I don't have to pay for infrastructure, because this tool is FREE to use.
+The online tool can be self-hosted. The public instance is sponsored by OMZCloud_.
 
 
 Development guide
@@ -19,7 +19,7 @@ If you want to join development, this is what you want to know:
 
 The code consists of two parts:
 
-- Landing page: A static HTML page, built with Zola_. CSS is based on TailwindCSS_.
+- Landing page: A static HTML page, built with Zola_. CSS is based on UnoCSS_.
 - API backend: Written in Python_, based on FastAPI_ framework.
 
 Assume that you already install all dependencies.
@@ -36,19 +36,13 @@ Assume that you already install all dependencies.
 
     uvicorn api.main:app
 
-- To serve the landing page and run the API backend at the same time, you can run this at the top-level folder:
+- When deploying to a live system, we need to route URLs to landing page and the backend. Look into *Deployment/Nginx* for example.
+
+- If you modify HTML code in landing page, chance that you are adding new CSS classes and you don't see update. You need to run this command again:
 
   .. code-block:: sh
 
-    npx vercel dev
-
-- If you modify HTML code in landing, chance that you are adding new CSS classes and you don't see update.
-  It is because we configure TailwindCSS to delete all unused CSS classes. You need to build TailwindCSS again, let it scan used classes again.
-  Doing so by running this command in *front-dev*:
-
-  .. code-block:: sh
-
-    yarn build-tailwind
+    just build-css
 
 
 Credit
@@ -57,10 +51,10 @@ Credit
 Brought to you by `Nguyễn Hồng Quân <author_>`_.
 
 
-.. _vercel: https://vercel.com
 .. _zola: https://www.getzola.org/
-.. _tailwindcss: https://tailwindcss.com/
+.. _unocss: https://unocss.dev/
 .. _python: https://www.python.org/
 .. _fastapi: https://fastapi.tiangolo.com/
 .. _author: https://quan.hoabinh.vn
 .. _VietnamProvinces: https://pypi.org/project/vietnam-provinces/
+.. _OMZCloud: https://omzcloud.vn/
