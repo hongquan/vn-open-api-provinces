@@ -1,27 +1,51 @@
 [project]
 name = "vn-open-api-provinces"
 description = ""
-authors = [{ name = "Nguyễn Hồng Quân", email = "ng.hong.quan@gmail.com" }]
-license = { text = "GPL-3.0-or-later" }
 requires-python = "<4.0,>=3.12"
+license = { text = "GPL-3.0-or-later" }
+authors = [{ name = "Nguyễn Hồng Quân", email = "ng.hong.quan@gmail.com" }]
 dependencies = [
-  "aiofiles >= 25.1.0",
   "Unidecode >= 1.3.8",
-  "vietnam-provinces >= 2025.10.1",
-  "logbook >= 1.8.2",
+  "aiofiles >= 25.1.0",
+  "fastapi-problem >= 0.11.6",
   "fastapi >= 0.119.0",
-  "pydantic >= 2.12.3",
+  "fastenumplus >= 1.4.0",
+  "granian >= 2.6.1",
+  "logbook >= 1.9.2",
   "lunr >= 0.8.0",
   "pydantic-settings >= 2.11.0",
-  "fastenumplus >= 1.4.0",
-  "granian[reload] >= 2.5.5",
-  "fastapi-problem >= 0.11.5",
-  "uvicorn >= 0.38.0",
+  "pydantic >= 2.12.3",
+  "uvicorn >= 0.40.0",
+  "vietnam-provinces >= 2026.01.0",
 ]
 dynamic = ["version"]
 
+[dependency-groups]
+dev = [
+  "pytest >= 8.4.2",
+  "ty>=0.0.9",
+]
+lint = [
+  "ruff >= 0.14.10",
+]
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.mypy]
+python_version = "3.12"
+
+[[tool.mypy.overrides]]
+module = [
+  "logbook.*",
+  "lunr.*",
+  "fast_enum.*",
+]
+ignore_missing_imports = true
+
 [tool.pdm.version]
-source = 'file'
+source = "file"
 path = "api/__init__.py"
 
 [tool.ruff]
@@ -52,38 +76,16 @@ target-version = "py312"
 
 [tool.ruff.lint]
 # Enable Pyflakes `E` and `F` codes by default.
-select = ['E', 'F', 'I', 'UP']
+select = ["E", "F", "I", "UP"]
 ignore = []
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-[tool.ruff.format]
-quote-style = "single"
-
 [tool.ruff.lint.isort]
 lines-after-imports = 2
 
-[build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
+[tool.ruff.format]
+quote-style = "single"
 
-[dependency-groups]
-dev = [
-    "mypy >= 1.18.2",
-    "pytest >= 8.4.2",
-]
-lint = [
-    "ruff >= 0.14.1",
-]
-
-[tool.mypy]
-python_version = "3.12"
-show_error_codes = true
-
-[[tool.mypy.overrides]]
-module = [
-  "logbook.*",
-  "lunr.*",
-  "fast_enum.*",
-]
-ignore_missing_imports = true
+[tool.uv.sources]
+fastapi-problem  = { git = 'https://github.com/hongquan/fastapi-problem.git', rev = 'quan' }
