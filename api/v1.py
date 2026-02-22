@@ -1,47 +1,28 @@
 import os
-from collections import deque
-from contextlib import asynccontextmanager
 from dataclasses import asdict
-from itertools import groupby
 from operator import attrgetter
-from typing import Any, Deque, FrozenSet
 
 from fastapi import FastAPI, HTTPException, Query, Request
-from fastapi.responses import FileResponse
 from logbook import Logger
-from lunr.exceptions import QueryParseError
+from vietnam_provinces import __data_version__
+from vietnam_provinces.legacy import District, DistrictCode, Province, ProvinceCode, Ward, WardCode
 
 from . import __version__
 from .schema_v1 import District as DistrictResponse
 from .schema_v1 import ProvinceResponse, SearchResult, VersionResponse
 from .schema_v1 import Ward as WardResponse
-from .search import repo
-from .vendor.vietnam_provinces import NESTED_DIVISIONS_JSON_PATH, __data_version__
-from .vendor.vietnam_provinces.enums.districts import DistrictEnum, ProvinceEnum
-from .vendor.vietnam_provinces.enums.wards import WardEnum
 
 
 logger = Logger(__name__)
 
-
-@asynccontextmanager
-async def lifespan(app):
-    from .search import repo
-
-    logger.debug('To build search index')
-    repo.build_index()
-    logger.debug('Ready to search')
-    yield
-
-
-api_v1 = FastAPI(title='Vietnam Provinces online API', version=__version__, lifespan=lifespan)
+api_v1 = FastAPI(title='Vietnam Provinces online API', version=__version__)
 
 SearchResults = list[SearchResult]
 SearchQuery = Query(
     ...,
     title='Query string for search',
-    example='Hiền Hòa',
-    description='Follow [lunr](https://lunr.readthedocs.io/en/latest/usage.html#using-query-strings) syntax.',
+    examples=['Hiền Hòa'],
+    description='Enter full or partial name. Example: "Hiền Hòa" or "hien hoa".',
 )
 
 
@@ -58,30 +39,45 @@ async def show_all_divisions(
         blacklist = filter(None, (s.strip() for s in env_value.split(',')))
         if not client_ip or client_ip in blacklist:
             raise HTTPException(429)
-    if depth >= 3:
-        return FileResponse(NESTED_DIVISIONS_JSON_PATH)
-    if depth == 2:
-        provinces: Deque[dict[str, Any]] = deque()
-        for k, group in groupby(DistrictEnum, key=attrgetter('value.province_code')):
-            p = asdict(ProvinceEnum[f'P_{k}'].value)
-            p['districts'] = tuple(asdict(d.value) for d in group)
-            provinces.append(p)
-        return provinces
-    return tuple(asdict(p.value) for p in ProvinceEnum)
+
+    provinces = []
+    for p in sorted(Province.iter_all(), key=attrgetter('code')):
+        pd = asdict(p)
+        if depth >= 2:
+            districts = []
+            for d in sorted(District.iter_by_province(p.code), key=attrgetter('code')):
+                dd = asdict(d)
+                if depth >= 3:
+                    dd['wards'] = tuple(
+                        asdict(w) for w in sorted(Ward.iter_by_district(d.code), key=attrgetter('code'))
+                    )
+                districts.append(dd)
+            pd['districts'] = tuple(districts)
+        else:
+            pd['districts'] = ()
+        provinces.append(pd)
+    return provinces
 
 
 @api_v1.get('/p/', response_model=list[ProvinceResponse])
 async def list_provinces():
-    return tuple(asdict(p.value) for p in ProvinceEnum)
+    return tuple(asdict(p) for p in sorted(Province.iter_all(), key=attrgetter('code')))
+
+
+def _make_search_results(items) -> list[dict]:
+    # Try to extract the enum value safely
+    def _code_value(code):
+        if hasattr(code, 'value'):
+            return code.value
+        return code
+
+    return [{'name': i.name, 'code': _code_value(i.code)} for i in items]
 
 
 @api_v1.get('/p/search/', response_model=SearchResults)
 async def search_provinces(q: str = SearchQuery):
-    try:
-        res = repo.search_province(q)
-        return res
-    except QueryParseError:
-        raise HTTPException(status_code=422, detail='unrecognized-search-query')
+    items = Province.search(q)
+    return _make_search_results(items)
 
 
 @api_v1.get('/p/{code}', response_model=ProvinceResponse)
@@ -92,34 +88,42 @@ async def get_province(
     ),
 ):
     try:
-        province = ProvinceEnum[f'P_{code}'].value
-    except (KeyError, AttributeError):
+        pcode = ProvinceCode(code)
+    except ValueError:
+        raise HTTPException(404, detail='invalid-province-code')
+    try:
+        province = Province.from_code(pcode)
+    except (KeyError, ValueError, IndexError):
         raise HTTPException(404, detail='invalid-province-code')
     response = asdict(province)
-    districts: dict[int, dict[str, Any]] = {}
+
+    districts = []
     if depth >= 2:
-        districts = {d.value.code: asdict(d.value) for d in DistrictEnum if d.value.province_code == code}
-    if depth == 3:
-        district_codes: FrozenSet[int] = frozenset(districts.keys())
-        for k, group in groupby(WardEnum, key=attrgetter('value.district_code')):
-            if k not in district_codes:
-                continue
-            districts[k]['wards'] = tuple(asdict(w.value) for w in group)
-    response['districts'] = tuple(districts.values())
+        for d in sorted(District.iter_by_province(pcode), key=attrgetter('code')):
+            dd = asdict(d)
+            if depth >= 3:
+                dd['wards'] = tuple(asdict(w) for w in sorted(Ward.iter_by_district(d.code), key=attrgetter('code')))
+            districts.append(dd)
+    response['districts'] = tuple(districts)
     return response
 
 
 @api_v1.get('/d/', response_model=list[DistrictResponse])
 async def list_districts():
-    return tuple(asdict(d.value) for d in DistrictEnum)
+    return tuple(asdict(d) for d in sorted(District.iter_all(), key=attrgetter('code')))
 
 
 @api_v1.get('/d/search/', response_model=SearchResults)
 async def search_districts(q: str = SearchQuery, p: int | None = Query(None, title='Province code to filter')):
-    try:
-        return repo.search_district(q, p)
-    except QueryParseError:
-        raise HTTPException(status_code=422, detail='unrecognized-search-query')
+    if p is not None:
+        try:
+            pcode = ProvinceCode(p)
+            items = filter(lambda x: x.province_code == pcode, District.search(q))
+        except ValueError:
+            items = []
+    else:
+        items = District.search(q)
+    return _make_search_results(items)
 
 
 @api_v1.get('/d/{code}', response_model=DistrictResponse)
@@ -127,18 +131,26 @@ async def get_district(
     code: int, depth: int = Query(1, ge=1, le=2, title='Show down to subdivisions', description='2: show wards')
 ):
     try:
-        district = DistrictEnum[f'D_{code}'].value
-    except (KeyError, AttributeError):
+        dcode = DistrictCode(code)
+    except ValueError:
         raise HTTPException(404, detail='invalid-district-code')
+    try:
+        district = District.from_code(dcode)
+    except (KeyError, ValueError, IndexError):
+        raise HTTPException(404, detail='invalid-district-code')
+
     response = asdict(district)
-    if depth == 2:
-        response['wards'] = tuple(asdict(w.value) for w in iter(WardEnum) if w.value.district_code == code)
+
+    wards = []
+    if depth >= 2:
+        wards = [asdict(w) for w in sorted(Ward.iter_by_district(dcode), key=attrgetter('code'))]
+    response['wards'] = tuple(wards)
     return response
 
 
 @api_v1.get('/w/', response_model=list[WardResponse])
 async def list_wards():
-    return tuple(asdict(w.value) for w in WardEnum)
+    return tuple(asdict(w) for w in sorted(Ward.iter_all(), key=attrgetter('code')))
 
 
 @api_v1.get('/w/search/', response_model=SearchResults)
@@ -147,17 +159,33 @@ async def search_wards(
     d: int | None = Query(None, title='District code to filter'),
     p: int | None = Query(None, title='Province code to filter, ignored if district is given'),
 ):
-    try:
-        return repo.search_ward(q, d, p)
-    except QueryParseError:
-        raise HTTPException(status_code=422, detail='unrecognized-search-query')
+    items = Ward.search(q)
+    if d is not None:
+        try:
+            dcode = DistrictCode(d)
+            items = filter(lambda x: x.district_code == dcode, items)
+        except ValueError:
+            items = []
+    elif p is not None:
+        try:
+            pcode = ProvinceCode(p)
+            dcodes = {dist.code for dist in District.iter_by_province(pcode)}
+            items = filter(lambda x: x.district_code in dcodes, items)
+        except ValueError:
+            items = []
+
+    return _make_search_results(items)
 
 
 @api_v1.get('/w/{code}', response_model=WardResponse)
 async def get_ward(code: int):
     try:
-        ward = WardEnum[f'W_{code}'].value  # type: ignore[misc]
-    except (KeyError, AttributeError):
+        wcode = WardCode(code)
+    except ValueError:
+        raise HTTPException(404, detail='invalid-ward-code')
+    try:
+        ward = Ward.from_code(wcode)
+    except (KeyError, ValueError, IndexError):
         raise HTTPException(404, detail='invalid-ward-code')
     return asdict(ward)
 

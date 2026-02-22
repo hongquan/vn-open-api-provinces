@@ -111,6 +111,7 @@ venv.bak/
 .vscode
 .idea
 .helix
+.aider.*
 
 .node_modules
 node_modules

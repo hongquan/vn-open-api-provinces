@@ -2,31 +2,33 @@
 name = "vn-open-api-provinces"
 description = ""
 requires-python = "<4.0,>=3.12"
-license = { text = "GPL-3.0-or-later" }
+license = "GPL-3.0-or-later"
 authors = [{ name = "Nguyễn Hồng Quân", email = "ng.hong.quan@gmail.com" }]
 dependencies = [
-  "Unidecode >= 1.3.8",
+  "Unidecode >= 1.4.0",
   "aiofiles >= 25.1.0",
-  "fastapi-problem >= 0.11.6",
-  "fastapi >= 0.119.0",
-  "fastenumplus >= 1.4.0",
-  "granian >= 2.6.1",
+  "fastapi-problem >= 0.12.1",
+  "fastapi >= 0.129.0",
+  "granian >= 2.7.1",
   "logbook >= 1.9.2",
-  "lunr >= 0.8.0",
-  "pydantic-settings >= 2.11.0",
-  "pydantic >= 2.12.3",
-  "uvicorn >= 0.40.0",
-  "vietnam-provinces >= 2026.01.0",
+  "pydantic-settings >= 2.13.1",
+  "pydantic >= 2.12.5",
+  "uvicorn >= 0.41.0",
+  "vietnam-provinces >= 2026.2.3",
 ]
 dynamic = ["version"]
 
 [dependency-groups]
-dev = [
-  "pytest >= 8.4.2",
-  "ty>=0.0.9",
-]
+dev = []
 lint = [
   "ruff >= 0.14.10",
+  "ty>=0.0.9",
+]
+test = [
+  "httpx>=0.28.1",
+  "msgspec>=0.20.0",
+  "pytest>=9.0.2",
+  "pytest-asyncio>=1.3.0",
 ]
 
 [build-system]
@@ -39,14 +41,16 @@ python_version = "3.12"
 [[tool.mypy.overrides]]
 module = [
   "logbook.*",
-  "lunr.*",
-  "fast_enum.*",
 ]
 ignore_missing_imports = true
 
 [tool.pdm.version]
 source = "file"
 path = "api/__init__.py"
+
+[tool.pytest]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.ruff]
 line-length = 120
@@ -88,4 +92,4 @@ lines-after-imports = 2
 quote-style = "single"
 
 [tool.uv.sources]
-fastapi-problem  = { git = 'https://github.com/hongquan/fastapi-problem.git', rev = 'quan' }
+fastapi-problem = { git = "https://github.com/hongquan/fastapi-problem.git", rev = "quan" }

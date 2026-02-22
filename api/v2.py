@@ -12,7 +12,7 @@ from unidecode import unidecode
 from vietnam_provinces import NESTED_DIVISIONS_JSON_PATH, Province, ProvinceCode, Ward, WardCode
 
 from . import __version__
-from .schema_v2 import ProvinceResponse, WardResponse
+from .schema_v2 import LegacyWardResponse, ProvinceResponse, WardResponse, WardWithLegacySource
 
 
 api_v2 = FastAPI(title='Vietnam Provinces online API (2025)', version=__version__)
@@ -44,11 +44,10 @@ def show_all_divisions(request: Request, depth: int = Query(1, ge=1, le=2, title
 
 @api_v2.get('/p/')
 async def list_provinces(search: str = '') -> tuple[ProvinceResponse, ...]:
-    provinces = sorted(Province.iter_all(), key=attrgetter('code'))
-    keywords = search.strip().lower().split()
-    if keywords:
-        logger.info('To filter by {}', keywords)
-        provinces = filter_provinces_by_keywords(provinces, keywords)
+    if search:
+        provinces = Province.search(search)
+    else:
+        provinces = sorted(Province.iter_all(), key=attrgetter('code'))
     return tuple(ProvinceResponse(**asdict(p)) for p in provinces)
 
 
@@ -68,6 +67,7 @@ def get_province(
     return ProvinceResponse(**response)
 
 
+# FIXME: Failed to generate example response in API doc.
 @api_v2.get('/w/', response_model=None)
 async def list_wards(
     request: Request, province: int = 0, search: str = ''
@@ -83,12 +83,8 @@ async def list_wards(
         wards = Ward.iter_by_province(province_code)
     else:
         wards = Ward.iter_all()
-    keywords = search.strip().lower().split()
-    if keywords:
-        logger.info('To filter by {}', keywords)
-        # At this step, `wards` is an iterator, so when passing to filter_wards_by_keywords,
-        # we need to convert it to a sequence, to allow iterating over it many times.
-        wards = filter_wards_by_keywords(tuple(wards), keywords)
+    if search:
+        wards = Ward.search(search)
     return tuple(WardResponse(**asdict(p)) for p in sorted(wards, key=attrgetter('code')))
 
 
@@ -101,25 +97,61 @@ def get_ward(code: int) -> WardResponse:
     return WardResponse(**asdict(Ward.from_code(wcode)))
 
 
-def filter_provinces_by_keywords(provinces: Sequence[Province], keywords: Iterable[str]):
-    # Mapping of province code -> unaccent province
-    unaccent_province_mapping = {p.code: unidecode(p.name).lower() for p in provinces}
-    unaccent_keywords = tuple(unidecode(w) for w in keywords)
+@api_v2.get('/w/from-legacy/', response_model=tuple[WardWithLegacySource, ...])
+def lookup_from_legacy_ward(legacy_name: str = '', legacy_code: int = 0) -> tuple[WardWithLegacySource, ...]:
+    """
+    Lookup for new wards from pre-2025 name or pre-2025 code.
+    """
+    if not legacy_name and not legacy_code:
+        return ()
 
-    def is_name_matched(province: Province):
-        name = unaccent_province_mapping[province.code]
-        return all(word in name for word in unaccent_keywords)
+    # Use the search_from_legacy classmethod from Ward as documented
+    results = Ward.search_from_legacy(name=legacy_name, code=legacy_code)
+    if not results:
+        return ()
 
-    return filter(is_name_matched, provinces)
+    # Convert WardWithLegacy objects to WardWithLegacySource dataclass instances
+    response_items = []
+    for result in results:
+        ward_response = WardResponse(**asdict(result.ward))
+        item = WardWithLegacySource(source_code=result.source_code, ward=ward_response)
+        response_items.append(item)
+
+    return tuple(response_items)
 
 
-def filter_wards_by_keywords(wards: Sequence[Ward], keywords: Iterable[str]) -> Iterator[Ward]:
-    # Mapping of ward code -> unaccent name
-    unaccent_ward_mapping = {w.code: unidecode(w.name).lower() for w in wards}
-    unaccent_keywords = tuple(unidecode(w) for w in keywords)
+@api_v2.get(
+    '/w/{code}/to-legacies/',
+    response_model=tuple[LegacyWardResponse, ...],
+    summary='Get legacy wards',
+    description='Get pre-2025 wards that were merged to form this new ward.',
+)
+def get_legacy_wards(code: int) -> tuple[LegacyWardResponse, ...]:
+    """
+    Get pre-2025 wards that were merged to form this new ward.
+    """
+    try:
+        # Get the new ward first
+        ward = Ward.from_code(WardCode(code))
+    except ValueError as e:
+        raise WardNotExistError(f'No ward has code {code}') from e
 
-    def is_name_matched(ward: Ward):
-        name = unaccent_ward_mapping[ward.code]
-        return all(word in name for word in unaccent_keywords)
+    # Get legacy sources - these are LegacyWard namedtuples
+    legacy_wards = ward.get_legacy_sources()
+    if not legacy_wards:
+        return ()
 
-    return filter(is_name_matched, wards)
+    # Convert legacy wards to LegacyWardResponse objects
+    # Legacy wards are namedtuples with direct field access
+    result = []
+    for w in legacy_wards:
+        legacy_ward_data = LegacyWardResponse(
+            name=w.name,
+            code=w.code,
+            division_type=w.division_type,
+            codename=w.codename,
+            district_code=w.district_code,
+            province_code=w.province_code,
+        )
+        result.append(legacy_ward_data)
+    return tuple(result)

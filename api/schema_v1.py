@@ -2,8 +2,7 @@ from enum import Enum
 from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue
-
-from .vendor.vietnam_provinces import VietNamDivisionType
+from vietnam_provinces.legacy import VietNamDivisionType
 
 
 # The code here looks like a duplicate of vietnam_provinces.base, but unfortunately, we cannot subclass from
@@ -83,7 +82,6 @@ class VersionResponse(BaseModel):
 _EXAMPLE_MATCH: dict[str, JsonValue] = {
     'name': 'Thị xã Phú Mỹ',
     'code': 754,
-    'matches': {'mỹ': [11, 13]},
 }
 
 
@@ -91,11 +89,3 @@ class SearchResult(BaseModel):
     model_config = ConfigDict(json_schema_extra={'examples': [_EXAMPLE_MATCH]})
     name: str
     code: int
-    matches: Annotated[
-        dict[str, tuple[int, int]],
-        Field(
-            {},
-            title='Matched words and their positions in name.',
-            description='This info can help client side highlight the result in display.',
-        ),
-    ]
