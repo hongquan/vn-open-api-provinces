@@ -9,3 +9,7 @@ landing-page:
 
 build-css:
     encrecss build -i 'templates/*.html' -o static/css/uno.css
+
+build:
+    encrecss build -i 'templates/*.html' -o static/css/uno.css
+    zola build

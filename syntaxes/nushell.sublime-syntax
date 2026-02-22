@@ -1,0 +1,1034 @@
+%YAML 1.2
+---
+# - https://www.sublimetext.com/docs/syntax.html
+# - https://www.nushell.sh/book/
+name: Nushell
+scope: source.shell.nu
+
+file_extensions:
+  - nu
+
+first_line_match: |-
+  (?xi:
+    ^ \#! .* \b(nu)\b            # shebang
+  )
+
+variables:
+  non_var_name_char: |-
+    \s!"#$&'()*+,\-./:;<=>?\[\]^`{|}
+  var_name: '[^{{non_var_name_char}}]+'
+  var_name_end: '(?=[{{non_var_name_char}}]|$)'
+  long_flag: '--[A-Za-z\d\-_]*'
+  short_flag: '-[A-Za-z\d_]?'
+  number: '[+-]?\d+'
+  pos_decimal: '\d+(\.\d*)?'
+  double_quoted_string_escape: '\\(["''\\/bfrnt]|u\{\h{1,6}\})'
+  quoted_string: '''.*?''|"({{double_quoted_string_escape}}|.)*?"|`.*?`'
+  bare_string: '[\w*+./@~]+'
+  pipe: '(^|(?<!\|))\|(?!\|)'
+  identifier_break: (?=\s|[#);\]{}|]|$)
+  expression_end: (?=\s*[#);\]{}|]|\s*$)
+  expression_break: (?=\s|{{expression_end}})
+  parameter_end: (?=[#,=\]|\n]|$)
+  parameter_type_end: (?=\s|[#,<=>@\]|\n])
+  binary_logic_operator: '(?<=^|\s)(?:and|or|xor){{identifier_break}}'
+  operator: |-
+    (?x:
+      (?:
+        \+|-|\*|/|//|mod|\*\*|
+        ==|!=|<|<=|>|>=|
+        =~|!~|
+        in|not-in|not|{{binary_logic_operator}}|
+        bit-or|bit-xor|bit-and|bit-shl|bit-shr|
+        starts-with|ends-with|
+        \+\+
+      ){{expression_break}}
+    )
+  row_condition_end: (?={{binary_logic_operator}}|[#);\]{}|]|$)
+  core_native_command: |-
+    (?x:
+      alias|break|commandline|const|continue|def|def-env|describe|do|du|echo|error\ make|export\ alias|export\ const|
+      export\ def|export\ def-env|export\ extern|export\ extern-wrapped|export\ module|export\ use|extern|
+      extern-wrapped|for|help\ aliases|help\ commands|help\ externs|help\ modules|help\ operators|hide|hide-env|if|
+      ignore|is-admin|lazy\ make|let|loop|match|module|mut|overlay\ hide|overlay\ list|overlay\ new|overlay\ use|
+      register|return|source|source-env|try|use|version|while
+    )
+  native_command: |-
+    (?x:
+      # bits
+      bits\ and|bits\ not|bits\ or|bits\ rol|bits\ ror|bits\ shl|bits\ shr|bits\ xor|
+      # bytes
+      bytes\ add|bytes\ at|bytes\ build|bytes\ collect|bytes\ ends-with|bytes\ index-of|bytes\ length|bytes\ remove|
+      bytes\ replace|bytes\ reverse|bytes\ starts-with|
+      # chart
+      histogram|
+      # conversions
+      fill|fmt|into\ binary|into\ bits|into\ bool|into\ datetime|into\ decimal|into\ duration|into\ filesize|into\ int|
+      into\ record|into\ sqlite|into\ string|
+      # database
+      query\ db|schema|
+      # dataframe
+      dfr\ all-false|dfr\ all-true|dfr\ append|dfr\ arg-max|dfr\ arg-min|dfr\ arg-sort|dfr\ arg-true|dfr\ arg-unique|
+      dfr\ as-date|dfr\ as-datetime|dfr\ columns|dfr\ concatenate|dfr\ contains|dfr\ count-null|dfr\ cumulative|
+      dfr\ drop|dfr\ drop-duplicates|dfr\ drop-nulls|dfr\ dtypes|dfr\ dummies|dfr\ first|dfr\ get|dfr\ get-day|
+      dfr\ get-hour|dfr\ get-minute|dfr\ get-month|dfr\ get-nanosecond|dfr\ get-ordinal|dfr\ get-second|dfr\ get-week|
+      dfr\ get-weekday|dfr\ get-year|dfr\ into-df|dfr\ into-nu|dfr\ is-duplicated|dfr\ is-not-null|dfr\ is-null|
+      dfr\ is-unique|dfr\ last|dfr\ lowercase|dfr\ ls|dfr\ melt|dfr\ n-unique|dfr\ not|dfr\ open|dfr\ query|
+      dfr\ replace|dfr\ replace-all|dfr\ rolling|dfr\ sample|dfr\ set|dfr\ set-with-idx|dfr\ shape|dfr\ slice|
+      dfr\ str-lengths|dfr\ str-slice|dfr\ strftime|dfr\ summary|dfr\ take|dfr\ to-arrow|dfr\ to-avro|dfr\ to-csv|
+      dfr\ to-jsonl|dfr\ to-parquet|dfr\ uppercase|dfr\ value-counts|
+      # dataframe or lazyframe
+      dfr\ filter-with|dfr\ rename|dfr\ shift|dfr\ unique|dfr\ with-column|
+      # date
+      date\ humanize|date\ list-timezone|date\ now|date\ to-record|date\ to-table|date\ to-timezone|format\ date|
+      # debug
+      ast|debug|explain|inspect|metadata|profile|timeit|view\ files|view\ source|view\ span|
+      # default
+      inc|
+      # env
+      config\ env|config\ nu|config\ reset|export-env|with-env|
+      # expression
+      dfr\ agg-groups|dfr\ arg-where|dfr\ as|dfr\ col|dfr\ concat-str|dfr\ count|dfr\ datepart|dfr\ expr-not|
+      dfr\ implode|dfr\ is-in|dfr\ lit|dfr\ max|dfr\ mean|dfr\ min|dfr\ otherwise|dfr\ std|dfr\ sum|dfr\ var|dfr\ when|
+      # filesystem
+      cd|cp|glob|load-env|ls|mkdir|mv|open|rm|save|start|touch|watch|
+      # filters
+      all|any|append|collect|columns|compact|default|drop\ column|drop\ nth|each\ while|enumerate|every|filter|find|
+      first|flatten|get|group|group-by|headers|insert|is-empty|items|join|last|length|lines|merge|move|par-each|prepend|
+      query\ json|query\ xml|range|reduce|reject|rename|reverse|roll\ down|roll\ left|roll\ right|roll\ up|rotate|
+      scope\ aliases|scope\ commands|scope\ engine-stats|scope\ externs|scope\ modules|scope\ variables|select|shuffle|
+      skip\ until|skip\ while|sort|sort-by|split\ list|split-by|take\ until|take\ while|transpose|uniq|uniq-by|
+      update\ cells|upsert|values|where|window|wrap|zip|
+      # formats
+      decode\ hex|encode\ hex|from\ csv|from\ eml|from\ ics|from\ ini|from\ json|from\ nuon|from\ ods|from\ ssv|
+      from\ toml|from\ tsv|from\ url|from\ vcf|from\ xlsx|from\ xml|from\ yaml|from\ yml|to\ csv|to\ html|to\ json|
+      to\ md|to\ nuon|to\ text|to\ toml|to\ tsv|to\ xml|to\ yaml|
+      # generators
+      cal|seq\ char|seq\ date|
+      # hash
+      decode\ base64|encode\ base64|hash\ md5|hash\ sha256|
+      # lazyframe
+      dfr\ agg|dfr\ cache|dfr\ collect|dfr\ explode|dfr\ fetch|dfr\ fill-nan|dfr\ fill-null|dfr\ filter|dfr\ flatten|
+      dfr\ group-by|dfr\ into-lazy|dfr\ join|dfr\ median|dfr\ quantile|dfr\ reverse|dfr\ select|dfr\ sort-by|
+      # math
+      math\ abs|math\ arccos|math\ arccosh|math\ arcsin|math\ arcsinh|math\ arctan|math\ arctanh|math\ avg|math\ ceil|
+      math\ cos|math\ cosh|math\ e|math\ exp|math\ floor|math\ ln|math\ log|math\ max|math\ median|math\ min|math\ mode|
+      math\ pi|math\ product|math\ round|math\ sin|math\ sinh|math\ sqrt|math\ stddev|math\ sum|math\ tan|math\ tanh|
+      math\ tau|math\ variance|
+      # misc
+      history\ session|tutor|
+      # network
+      http\ delete|http\ get|http\ head|http\ options|http\ patch|http\ post|http\ put|port|query\ web|url\ build-query|
+      url\ join|url\ parse|
+      # path
+      path\ basename|path\ dirname|path\ exists|path\ expand|path\ join|path\ parse|path\ relative-to|path\ split|
+      path\ type|
+      # platform
+      ansi\ gradient|ansi\ link|ansi\ strip|clear|input\ list|input\ listen|keybindings\ default|keybindings\ list|
+      keybindings\ listen|kill|sleep|term\ size|
+      # prompt
+      gstat|
+      # random
+      random\ bool|random\ chars|random\ decimal|random\ dice|random\ integer|random\ uuid|
+      # shells
+      enter|exit|g|n|p|shells|
+      # strings
+      char|detect\ columns|format\ duration|format\ filesize|nu-check|nu-highlight|parse|print|size|split\ chars|
+      split\ column|split\ row|split\ words|str\ camel-case|str\ capitalize|str\ contains|str\ distance|str\ downcase|
+      str\ ends-with|str\ expand|str\ index-of|str\ join|str\ kebab-case|str\ length|str\ pascal-case|str\ replace|
+      str\ reverse|str\ screaming-snake-case|str\ snake-case|str\ starts-with|str\ substring|str\ title-case|str\ trim|
+      str\ upcase|url\ encode|
+      # system
+      complete|exec|ps|registry\ query|run-external|sys|which|
+      # viewers
+      explore|grid|table|
+
+      # Commands with subcommands
+      ansi|bits|bytes|config|date|decode|detect|dfr|drop|each|encode|error|export|format|from|hash|help|history|http|
+      input|into|keybindings|lazy|math|overlay|path|query|random|registry|roll|scope|seq|skip|split|str|take|term|to|
+      update|url|view
+    )
+
+contexts:
+  main:
+    - include: assign-variable
+    - include: comment
+    - include: closure-record
+    - include: module
+    - include: command
+    - include: extern
+    - include: extern-wrapped
+    - include: expression
+    - include: terminator
+
+  statement:
+    - include: if-statement
+    - include: match-statement
+    - include: loop-statement
+    - include: while-statement
+    - include: for-statement
+    - include: try-statement
+    - include: with-env-statement
+
+  expression:
+    - include: assign-environment-variable
+    - include: subexpression
+    - include: statement
+    - include: data-with-operators
+    - include: function-call
+    - include: dollar-variable
+    - include: literal-bare-string
+
+  expression-parameter:
+    - include: subexpression
+    - include: data-with-operators
+    - include: dollar-variable
+    - include: literal-bare-string
+
+  expression-function-call:
+    - include: subexpression
+    - include: data-structure
+    - include: property-accessor
+    - include: pipe
+    - include: redirect-output
+    - include: dollar-variable
+    - include: literal-flag
+    - include: literal-bare-string
+
+  expression-condition:
+    - include: subexpression
+    - include: data-with-operators
+    - include: function-call
+    - include: dollar-variable
+    - include: literal-bare-string
+
+  expression-record-list-table:
+    - include: subexpression
+    - include: data-with-operators
+    - include: dollar-variable
+    - include: literal-bare-string
+
+  subexpression:
+    - match: \(
+      scope: punctuation.section.group.begin.nu
+      push:
+        - meta_scope: meta.group.nu
+        - include: comment
+        - include: assign-environment-variable
+        - include: statement
+        - include: data-with-operators
+        - include: function-call-inline
+        - include: subexpression
+        - include: literal-bare-string
+        - include: dollar-variable
+        - match: \)
+          scope: punctuation.section.group.end.nu
+          pop: 1
+
+  data-structure:
+    - include: date  # Include before integer
+    - include: duration  # Include before integer
+    - include: binary  # Include before file-size
+    - include: file-size  # Include before integer
+    - include: range  # Include before integer
+    - include: integer
+    - include: decimal
+    - include: string
+    - include: interpolated-string
+    - include: boolean
+    - include: literal-null
+
+    - include: list-table
+    - include: closure-record
+
+  data-with-operators:
+    - include: data-structure
+    - include: property-accessor
+    - include: operator
+    - include: pipe
+
+  operator:
+    - match: '{{operator}}'
+      scope: keyword.operator.nu
+
+  pipe:
+    - match: '{{pipe}}'
+      scope: keyword.operator.pipe.nu
+
+  date:
+    - match: |-
+        (?x:
+          (\d+)-(0[1-9]|1[012])-(0[1-9]|[12]\d|3[01])
+          (
+            [Tt]
+            ([01]\d|2[0-3]):([0-5]\d):([0-5]\d|60)(\.\d+)?
+            (([Zz])|([\+|\-]([01]\d|2[0-3]):[0-5]\d))?
+          )?
+        )
+      scope: constant.date.nu
+
+  duration:
+    - match: '{{pos_decimal}}(ns|us|ms|sec|min|hr|day|wk)'
+      scope: constant.duration.nu
+
+  file-size:
+    - match: '(?i){{pos_decimal}}(b|kb|mb|gb|tb|pb|eb|zb|kib|mib|gib|tib|pib|eib|zib)'
+      scope: constant.file-size.nu
+
+  range:
+    - match: |-
+        (?x:
+          {{number}}\.\.<?{{number}}|
+          {{number}}\.\.|
+          \.\.<?{{number}}
+        )
+      scope: constant.range.nu
+
+  integer:
+    - match: -?\d+(?!\.)(?=[^\w\.]|$)
+      scope: constant.numeric.integer.nu
+
+  decimal:
+    - match: '[+-]?(((\d*\.)?\d+|Infinity|NaN)(?=[^\w\.]|$))'
+      scope: constant.numeric.decimal.nu
+
+  boolean:
+    - match: 'true'
+      scope: constant.language.boolean.true.nu
+    - match: 'false'
+      scope: constant.language.boolean.false.nu
+
+  binary:
+    - include: binary-hex
+    - include: binary-bin
+    - include: binary-oct
+
+  binary-hex:
+    - match: 0x\[
+      scope: punctuation.definition.binary.begin.nu
+      push:
+        - meta_include_prototype: false
+        - meta_scope: meta.binary.hex.nu
+        - include: comment
+        - match: '[\da-fA-F]{1,2}'
+          scope: constant.numeric.hex.nu
+        - match: \]
+          scope: punctuation.definition.binary.end.nu
+          pop: 1
+
+  binary-bin:
+    - match: 0b\[
+      scope: punctuation.definition.binary.begin.nu
+      push:
+        - meta_include_prototype: false
+        - meta_scope: meta.binary.bin.nu
+        - include: comment
+        - match: '[01]{1,8}'
+          scope: constant.numeric.bin.nu
+        - match: \]
+          scope: punctuation.definition.binary.end.nu
+          pop: 1
+
+  binary-oct:
+    - match: 0o\[
+      scope: punctuation.definition.binary.begin.nu
+      push:
+        - meta_include_prototype: false
+        - meta_scope: meta.binary.oct.nu
+        - include: comment
+        - match: '[0-7]{1,3}'
+          scope: constant.numeric.oct.nu
+        - match: \]
+          scope: punctuation.definition.binary.end.nu
+          pop: 1
+
+  interpolated-string:
+    - include: interpolated-single-quoted-string
+    - include: interpolated-double-quoted-string
+
+  interpolated-single-quoted-string:
+    - match: \$'
+      scope: punctuation.definition.string.interpolated.begin.nu
+      push:
+        - meta_include_prototype: false
+        - meta_scope: meta.string.interpolated.nu string.interpolated.single.nu
+        - include: subexpression
+        - match: \'
+          scope: punctuation.definition.string.interpolated.end.nu
+          pop: 1
+
+  interpolated-double-quoted-string:
+    - match: \$"
+      scope: punctuation.definition.string.interpolated.begin.nu
+      push:
+        - meta_include_prototype: false
+        - meta_scope: meta.string.interpolated.nu string.interpolated.double.nu
+        - include: subexpression
+        - match: \"
+          scope: punctuation.definition.string.interpolated.end.nu
+          pop: 1
+        - include: double-quoted-string-content
+
+  string:
+    - include: literal-single-quoted-string
+    - include: literal-backtick-quoted-string
+    - include: literal-double-quoted-string
+
+  literal-single-quoted-string:
+    - match: \'
+      scope: punctuation.definition.string.begin.nu
+      push:
+        - meta_include_prototype: false
+        - meta_scope: meta.string.nu string.quoted.single.nu
+        - match: \'
+          scope: punctuation.definition.string.end.nu
+          pop: 1
+
+  literal-backtick-quoted-string:
+    - match: \`
+      scope: punctuation.definition.string.begin.nu
+      push:
+        - meta_include_prototype: false
+        - meta_scope: meta.string.nu string.quoted.backtick.nu
+        - match: \`
+          scope: punctuation.definition.string.end.nu
+          pop: 1
+
+  double-quoted-string-content:
+    - match: \\\n
+      scope: constant.character.escape.newline.nu
+    - match: '{{double_quoted_string_escape}}'
+      scope: constant.character.escape.nu
+
+  literal-double-quoted-string:
+    - match: \"
+      scope: punctuation.definition.string.begin.nu
+      push:
+        - meta_include_prototype: false
+        - meta_scope: meta.string.nu string.quoted.double.nu
+        - match: \"
+          scope: punctuation.definition.string.end.nu
+          pop: 1
+        - include: double-quoted-string-content
+
+  literal-bare-string:
+    - match: '{{bare_string}}'
+      scope: string.bare.nu
+
+  literal-flag:
+    - match: '{{long_flag}}'
+      scope: string.flag.long.nu
+    - match: '{{short_flag}}'
+      scope: string.flag.short.nu
+
+  dollar-variable:
+    - match: \$(env|in|nothing|nu){{var_name_end}}
+      scope: variable.language.nu
+
+    - match: \${{var_name}}
+      scope: variable.other.nu
+
+  property-accessor:
+    - match: (\.)({{var_name}})(\?)?
+      captures:
+        1: punctuation.accessor.nu
+        2: meta.property.nu
+        3: keyword.operator.optional.nu
+
+  redirect-output:
+    - match: out>|err>|out\+err>|err\+out>
+      scope: keyword.other.redirect.nu
+
+  assign-variable:
+    - match: (const|let|mut)\s+(\$?{{var_name}})\s*(=)\s*
+      captures:
+        1: keyword.other.nu
+        2: variable.name.nu
+        3: keyword.operator.assignment.nu
+      push:
+        - include: expression
+        - match: (?=.|$)
+          pop: 1
+
+    - match: (\${{var_name}})\s*(=)\s*
+      captures:
+        1: variable.name.nu
+        2: keyword.operator.assignment.nu
+      push:
+        - include: expression
+        - match: (?=.|$)
+          pop: 1
+
+  assign-environment-variable:
+    - match: ({{var_name}})(=)
+      captures:
+        1: variable.name.nu
+        2: keyword.operator.assignment.nu
+      push:
+        - meta_scope: meta.environment-value.nu
+        - include: string
+        - include: literal-bare-string
+        - match: (?=.|$)
+          pop: 1
+
+  terminator:
+    - match: ;
+      scope: punctuation.terminator.statement.nu
+
+  comment:
+    - match: (#)(.*)
+      captures:
+        1: comment.line.number-sign.nu
+        2: comment.line.nu
+
+  literal-null:
+    - match: null{{expression_break}}
+      scope: constant.language.null.nu
+
+  record-key:
+    - match: '({{var_name}})(:)'
+      captures:
+        1: entity.name.label.nu
+        2: punctuation.separator.key-value.nu
+    - match: (?=(?:{{quoted_string}}):)
+      push:
+        - include: string
+        - match: ':'
+          scope: punctuation.separator.key-value.nu
+          pop: 1
+
+  record-body:
+    - include: comment
+    - include: record-key
+    - include: expression-record-list-table
+    - match: ','
+      scope: punctuation.separator.comma.nu
+
+  closure-record:
+    - match: (?=\{)
+      branch_point: open-curly
+      branch:
+        - closure
+        - record
+
+  closure:
+    - match: '\{'
+      scope: punctuation.section.closure.begin.nu
+      push:
+        - meta_scope: meta.closure.nu
+        - include: comment
+        - match: '(?=({{var_name}}|{{quoted_string}}):)'
+          fail: open-curly
+        - match: \s
+        - match: \|
+          scope: punctuation.section.group.begin.nu
+          push:
+            - meta_scope: meta.parameters.nu
+            - include: parameter
+            - match: \,
+              scope: punctuation.separator.parameter.nu
+            - include: comment
+            - match: \|
+              scope: punctuation.section.group.end.nu
+              set:
+                - include: main
+                - match: '\}'
+                  scope: punctuation.section.closure.end.nu
+                  pop: 3
+        - match: (?=.)
+          push:
+            - include: main
+            - match: '\}'
+              scope: punctuation.section.closure.end.nu
+              pop: 3
+
+  record:
+    - match: '\{'
+      scope: punctuation.section.record.begin.nu
+      push:
+        - meta_scope: meta.record.nu
+        - include: record-body
+        - match: '\}'
+          scope: punctuation.section.record.end.nu
+          pop: 2
+
+  list-table:
+    - match: '\['
+      scope: punctuation.section.list-table.begin.nu
+      push:
+        - meta_scope: meta.list-table.nu
+        - include: comment
+        - match: ','
+          scope: punctuation.separator.comma.nu
+        - match: ;
+          scope: punctuation.terminator.header.nu
+        - include: expression-record-list-table
+        - match: '\]'
+          scope: punctuation.section.list-table.end.nu
+          pop: 1
+
+  block:
+    - match: '\{'
+      scope: punctuation.section.block.begin.nu
+      push:
+        - meta_scope: meta.block.nu
+        - include: main
+        - match: '\}'
+          scope: punctuation.section.block.end.nu
+          pop: 2
+
+  module:
+    - match: (module)\s+
+      captures:
+        1: keyword.module.nu
+      push:
+        - meta_scope: meta.module.nu
+        - match: \'
+          scope: entity.name.module.begin.nu
+          set:
+            - meta_include_prototype: false
+            - meta_scope: entity.name.module.nu
+            - match: \'
+              scope: entity.name.module.end.nu
+            - match: \n
+              scope: invalid.illegal.newline.nu
+
+        - match: \`
+          scope: entity.name.module.begin.nu
+          set:
+            - meta_include_prototype: false
+            - meta_scope: entity.name.module.nu
+            - match: \`
+              scope: entity.name.module.end.nu
+            - match: \n
+              scope: invalid.illegal.newline.nu
+
+        - match: \"
+          scope: entity.name.module.begin.nu
+          set:
+            - meta_include_prototype: false
+            - meta_scope: entity.name.module.nu
+            - match: \"
+              scope: entity.name.module.end.nu
+            - match: \n
+              scope: invalid.illegal.newline.nu
+            - include: double-quoted-string-content
+
+        - match: '{{var_name}}'
+          scope: entity.name.module.nu
+
+        - include: block
+
+  parameter:
+    - match: (\.\.\.)?({{var_name}})(\?)?
+      captures:
+        1: keyword.operator.spread.nu
+        2: variable.parameter.nu
+        3: keyword.operator.optional.nu
+      push:
+        - include: parameter-type
+        - match: =
+          scope: keyword.operator.assignment.nu
+          push:
+            - match: '{{parameter_end}}'
+              pop: 2
+            - include: expression-parameter
+        - match: '{{parameter_end}}'
+          pop: 1
+
+    - match: ({{long_flag}})\s*(?:\(({{short_flag}})\))?
+      captures:
+        1: variable.parameter.long.nu
+        2: variable.parameter.short.nu
+      push:
+        - include: parameter-type
+        - match: '{{parameter_end}}'
+          pop: 1
+
+    - match: '{{short_flag}}'
+      scope: variable.parameter.short.nu
+      push:
+        - include: parameter-type
+        - match: '{{parameter_end}}'
+          pop: 1
+
+  parameter-type:
+    - match: ':'
+      scope: punctuation.separator.type.nu
+      push:
+        - include: type
+        - include: parameter-completion
+        - match: '{{parameter_end}}'
+          pop: 1
+
+  type:
+    - match: |-
+        (?x:
+          any|block|cell-path|duration|path|expr|filesize|glob|int|math|number|operator|range|cond|bool|signature|
+          string|variable|record|list|table|error
+        ){{parameter_type_end}}
+      scope: storage.type.nu
+
+    - match: <
+      scope: punctuation.definition.type.begin.nu
+      push:
+        - include: type
+        - match: \,
+          scope: punctuation.separator.type.nu
+        - include: record-key
+        - match: \>
+          scope: punctuation.definition.type.end.nu
+          pop: 1
+
+  parameter-completion:
+    - match: '@'
+      scope: keyword.operator.completion.nu
+      push:
+        - meta_scope: meta.function.completion.nu
+        - include: string
+        - include: literal-bare-string
+        - match: '{{parameter_end}}'
+          pop: 1
+
+  command-parameters:
+    - meta_scope: meta.parameters.nu
+    - match: \[
+      scope: punctuation.section.group.begin.nu
+      push:
+        - include: parameter
+        - match: \,
+          scope: punctuation.separator.parameter.nu
+        - include: comment
+        - match: \]
+          scope: punctuation.section.group.end.nu
+          pop: 2
+
+  command:
+    - match: (export\s+)?(def|def-env)\s+
+      captures:
+        1: keyword.declaration.nu
+        2: keyword.declaration.nu
+      push:
+        - meta_scope: meta.command.nu
+
+        - match: \'
+          scope: entity.name.command.begin.nu
+          push:
+            - meta_include_prototype: false
+            - meta_scope: entity.name.command.nu
+            - match: \'
+              scope: entity.name.command.end.nu
+              set: command-parameters
+            - match: \n
+              scope: invalid.illegal.newline.nu
+              set: command-parameters
+
+        - match: \`
+          scope: entity.name.command.begin.nu
+          push:
+            - meta_include_prototype: false
+            - meta_scope: entity.name.command.nu
+            - match: \`
+              scope: entity.name.command.end.nu
+              set: command-parameters
+            - match: \n
+              scope: invalid.illegal.newline.nu
+              set: command-parameters
+
+        - match: \"
+          scope: entity.name.command.begin.nu
+          push:
+            - meta_include_prototype: false
+            - meta_scope: entity.name.command.nu
+            - match: \"
+              scope: entity.name.command.end.nu
+              set: command-parameters
+            - match: \n
+              scope: invalid.illegal.newline.nu
+              set: command-parameters
+            - include: double-quoted-string-content
+
+        - match: '{{var_name}}'
+          scope: entity.name.command.nu
+          push: command-parameters
+
+        - include: block
+
+  extern-name:
+    - match: \'
+      scope: entity.name.extern.begin.nu
+      push:
+        - meta_scope: entity.name.extern.nu
+        - match: \'
+          scope: entity.name.extern.end.nu
+          pop: 1
+        - match: \n
+          scope: invalid.illegal.newline.nu
+          pop: 1
+
+    - match: \`
+      scope: entity.name.extern.begin.nu
+      push:
+        - meta_scope: entity.name.extern.nu
+        - match: \`
+          scope: entity.name.extern.end.nu
+          pop: 1
+        - match: \n
+          scope: invalid.illegal.newline.nu
+          pop: 1
+
+    - match: \"
+      scope: entity.name.extern.begin.nu
+      push:
+        - meta_scope: entity.name.extern.nu
+        - match: \"
+          scope: entity.name.extern.end.nu
+          pop: 1
+        - match: \n
+          scope: invalid.illegal.newline.nu
+          pop: 1
+        - include: double-quoted-string-content
+
+    - match: '{{var_name}}'
+      scope: entity.name.extern.nu
+
+  extern-parameters:
+    - match: \[
+      scope: punctuation.section.group.begin.nu
+      push:
+        - meta_scope: meta.parameters.nu
+        - include: parameter
+        - match: \,
+          scope: punctuation.separator.parameter.nu
+        - include: comment
+        - match: \]
+          scope: punctuation.section.group.end.nu
+          pop: 2
+
+  extern:
+    - match: (export\s+)?(extern)\s+
+      captures:
+        1: keyword.export.nu
+        2: keyword.extern.nu
+      push:
+        - meta_scope: meta.extern.nu
+        - include: extern-name
+        - include: extern-parameters
+
+  extern-wrapped:
+    - match: (export\s+)?(extern-wrapped)\s+
+      captures:
+        1: keyword.export.nu
+        2: keyword.extern-wrapped.nu
+      push:
+        - meta_scope: meta.extern-wrapped.nu
+        - include: extern-name
+        - include: extern-parameters
+        - include: block
+
+  function-call:
+    - include: special-call
+    - match: (?<=^|[\s|])(?:({{core_native_command}})|({{native_command}})|(\^?{{var_name}}))(?=[\s;|]|$)
+      captures:
+        1: meta.function-call.identifier.nu keyword.other.nu
+        2: meta.function-call.identifier.nu support.function.nu
+        3: meta.function-call.identifier.nu variable.function.nu
+      push:
+        - meta_content_scope: meta.function-call.arguments.nu
+        - match: (?=\s*[#;\]{}|]|\s*$)
+          pop: 1
+        - include: expression-function-call
+
+  function-call-inline:
+    - include: special-call
+    - match: (?:({{core_native_command}})|({{native_command}})|(\^?{{var_name}})){{identifier_break}}
+      captures:
+        1: meta.function-call.identifier.nu keyword.other.nu
+        2: meta.function-call.identifier.nu support.function.nu
+        3: meta.function-call.identifier.nu variable.function.nu
+      push:
+        - meta_content_scope: meta.function-call.arguments.nu
+        - match: (?=[)\]|])
+          pop: 1
+        - include: comment
+        - include: expression-function-call
+
+  special-call:
+    - include: alias-call
+    - include: overlay-call
+    - include: row-condition-call
+
+  alias-call:
+    - match: ((?:export )?alias)\s+(\$?{{var_name}})\s*(=)\s*
+      captures:
+        1: keyword.other.nu
+        2: variable.name.nu
+        3: keyword.operator.assignment.nu
+      push:
+        - include: command
+        - match: (?=.|$)
+          pop: 1
+
+  overlay-call:
+    - match: overlay use
+      scope: keyword.operator.nu
+      push:
+        - match: as{{identifier_break}}
+          scope: keyword.operator.nu
+        - include: literal-flag
+        - include: literal-bare-string
+        - match: '{{expression_end}}'
+          pop: 1
+
+  row-condition:
+    - match: '{{binary_logic_operator}}'
+      scope: keyword.operator.nu
+    - match: '{{var_name}}'
+      scope: variable.name.nu
+    - match: '(?!{{binary_logic_operator}}){{operator}}'
+      scope: keyword.operator.nu
+      push:
+        - include: subexpression
+        - include: data-structure
+        - include: property-accessor
+        - match: (?={{row_condition_end}})
+          pop: 1
+        - include: literal-bare-string
+        - include: dollar-variable
+
+  row-condition-call:
+    - match: where{{identifier_break}}
+      scope: meta.function-call.identifier.nu support.function.nu
+      push:
+        - meta_content_scope: meta.function-call.arguments.row-condition.nu
+        - include: row-condition
+        - match: '{{expression_end}}'
+          pop: 1
+
+  if-statement:
+    - match: if{{identifier_break}}
+      scope: keyword.control.conditional.if.nu
+      push:
+        - include: expression-condition
+        - match: '{{expression_end}}'
+          set: block
+    - match: else if{{identifier_break}}
+      scope: keyword.control.conditional.elseif.nu
+      push:
+        - include: expression-condition
+        - match: '{{expression_end}}'
+          set: block
+    - match: else{{identifier_break}}
+      scope: keyword.control.conditional.else.nu
+      push: block
+
+  match-statement:
+    - match: match{{identifier_break}}
+      scope: keyword.control.match.nu
+      push:
+        - include: expression-condition
+        - match: '{{expression_end}}'
+          set:
+          - match: '\{'
+            scope: punctuation.section.match.begin.nu
+            push:
+              - include: comment
+              - include: match-pattern
+              - match: =>
+                scope: keyword.operator.arrow.nu
+                push: block
+              - match: '\}'
+                scope: punctuation.section.match.end.nu
+                pop: 2
+
+  match-pattern:
+    - match: '\['
+      scope: punctuation.section.list.begin.nu
+      push:
+        - match: ','
+          scope: punctuation.separator.comma.nu
+        - match: '(..)?(\${{var_name}})'
+          captures:
+            1: operator.spread.nu
+            2: variable.other.nu
+        - include: data-structure
+        - match: '\]'
+          scope: punctuation.section.list.end.nu
+          pop: 1
+
+    - match: '\{'
+      scope: punctuation.section.record.begin.nu
+      push:
+        - meta_scope: meta.record.nu
+        - include: record-key
+        - include: data-structure
+        - include: dollar-variable
+        - match: ','
+          scope: punctuation.separator.comma.nu
+        - match: '\}'
+          scope: punctuation.section.record.end.nu
+          pop: 1
+
+    - match: ({{var_name}})\s+(if)
+      captures:
+        1: variable.name.nu
+        2: keyword.control.conditional.if.nu
+      push:
+        - include: expression-condition
+        - match: '(?==>)'
+          pop: 1
+
+    - include: data-structure
+
+    - match: ({{var_name}})
+      scope: variable.name.nu
+
+  loop-statement:
+    - match: loop
+      scope: keyword.control.loop.nu
+      push: block
+
+  while-statement:
+    - match: while{{identifier_break}}
+      scope: keyword.control.loop.while.nu
+      push:
+        - include: expression-condition
+        - match: '{{expression_end}}'
+          set: block
+
+  for-statement:
+    - match: (for)\s+(\$?{{var_name}})\s+(in)
+      captures:
+        1: keyword.control.loop.for.nu
+        2: variable.name.nu
+        3: keyword.control.loop.in.nu
+      push:
+        - include: expression-condition
+        - match: '{{expression_end}}'
+          set: block
+
+  try-statement:
+    - match: try{{identifier_break}}
+      scope: keyword.control.exception.try.nu
+      push: block
+    - match: catch{{identifier_break}}
+      scope: keyword.control.exception.catch.nu
+      push: block
+
+  with-env-statement:
+    - match: with-env{{identifier_break}}
+      scope: keyword.other.nu
+      push:
+        - match: '(?=\[)'
+          set:
+            - include: list-table
+            - include: block
+        - match: '\{'
+          scope: punctuation.section.record.begin.nu
+          push:
+            - meta_scope: meta.record.nu
+            - include: record-body
+            - match: '\}'
+              scope: punctuation.section.record.end.nu
+              set: block
+              pop: 2

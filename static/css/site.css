@@ -35,3 +35,12 @@ pre table {
 footer a {
   text-decoration: none;
 }
+
+/* Custom font classes */
+.title-font {
+  font-family: "Niramit", ui-sans-serif, system-ui, sans-serif;
+}
+
+.body-font {
+  font-family: "Niramit", ui-sans-serif, system-ui, sans-serif;
+}

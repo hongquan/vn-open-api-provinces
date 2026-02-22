@@ -1,2 +1,17 @@
 [tools]
 zola = "latest"
+
+[tasks.build]
+description = "Build the landing page with CSS generation"
+run = [
+    "encrecss build -i 'templates/*.html' -o static/css/uno.css",
+    "zola build",
+]
+
+[tasks.serve]
+description = "Serve the landing page with live reload"
+run = "zola serve -i 0.0.0.0 --base-url /"
+
+[tasks.dev]
+description = "Run the API development server"
+run = "uv run granian api.main:app --interface asgi --reload --host 0.0.0.0"

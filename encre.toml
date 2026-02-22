@@ -1,2 +1,234 @@
-# [theme]
-# dark_mode = { type = 'media' }
+safelist = [
+  # Responsive variants - sm
+  "sm:flex-row",
+  "sm:flex-col",
+  "sm:items-center",
+  "sm:justify-start",
+  "sm:ml-4",
+  "sm:mt-0",
+  "sm:pl-4",
+  "sm:py-2",
+  "sm:border-l-2",
+  "sm:border-gray-200",
+  "sm:text-4xl",
+  "sm:px-0",
+  
+  # Responsive variants - md
+  "md:flex-row",
+  "md:flex-col",
+  "md:justify-start",
+  "md:mb-0",
+  "md:ml-auto",
+  "md:px-6",
+  "md:space-x-4",
+  "md:space-y-0",
+  "md:text-lg",
+  "md:w-3/6",
+  
+  # Responsive variants - lg
+  "lg:max-w-240",
+  "lg:w-2/3",
+  "lg:w-2/6",
+
+  # Layout
+  "container",
+  "flex",
+  "flex-1",
+  "flex-col",
+  "flex-row",
+  "flex-wrap",
+  "grid",
+  "hidden",
+  "block",
+  "inline-block",
+  "inline-flex",
+  
+  # Positioning
+  "absolute",
+  "relative",
+  "fixed",
+  "sticky",
+  "z-10",
+  
+  # Spacing - Margin
+  "m-0",
+  "mx-auto",
+  "ml-3",
+  "ml-4",
+  "ml-auto",
+  "mt-1",
+  "mt-4",
+  "mt-6",
+  "mt-8",
+  "mt-10",
+  "mb-4",
+  "mb-8",
+  "mb-10",
+  
+  # Spacing - Padding
+  "p-1",
+  "p-2",
+  "p-5",
+  "px-2",
+  "px-5",
+  "py-1",
+  "py-2",
+  "py-8",
+  "pl-4",
+  
+  # Sizing - Width
+  "w-full",
+  "w-auto",
+  "w-5",
+  "w-10",
+  "w-5/6",
+  "min-w-32",
+  "min-w-36",
+  "max-w-200",
+  "max-h-48",
+  
+  # Sizing - Height
+  "h-5",
+  "h-8",
+  "h-10",
+  "min-h-screen",
+  
+  # Typography - Size
+  "text-xs",
+  "text-sm",
+  "text-base",
+  "text-lg",
+  "text-xl",
+  "text-2xl",
+  "text-3xl",
+  "text-4xl",
+  
+  # Typography - Weight
+  "font-bold",
+  "font-medium",
+  "font-light",
+  "font-normal",
+  "font-semibold",
+  "font-black",
+  
+  # Typography - Style
+  "italic",
+  "underline",
+  "no-underline",
+  "leading-relaxed",
+  "text-center",
+  "tracking-tight",
+  "tracking-wide",
+  
+  # Colors - Text
+  "text-white",
+  "text-black",
+  "text-gray-400",
+  "text-gray-500",
+  "text-gray-600",
+  "text-gray-700",
+  "text-gray-800",
+  "text-gray-900",
+  "text-blue-400",
+  "text-blue-500",
+  "text-blue-600",
+  "text-blue-700",
+  "text-blue-800",
+  "text-green-600",
+  "text-green-700",
+  "text-indigo-500",
+  "text-indigo-600",
+  "text-pink-400",
+  "text-pink-500",
+  "text-pink-600",
+  "text-orange-600",
+  "text-red-500",
+  "text-teal-500",
+  "text-yellow-500",
+  "text-purple-500",
+  
+  # Colors - Background
+  "bg-white",
+  "bg-gray-100",
+  "bg-gray-200",
+  "bg-indigo-500",
+  "bg-indigo-600",
+  "bg-blue-100",
+  
+  # Colors - Border
+  "border",
+  "border-0",
+  "border-gray-200",
+  "border-l-2",
+  
+  # Border Radius
+  "rounded-sm",
+  "rounded",
+  "rounded-md",
+  "rounded-lg",
+  
+  # Effects
+  "shadow",
+  "cursor-pointer",
+  "appearance-none",
+  "outline-none",
+  
+  # Overflow
+  "overflow-y-auto",
+  
+  # Object
+  "object-cover",
+  "object-center",
+  
+  # Lists
+  "list-none",
+  "list-disc",
+  "list-inside",
+  
+  # Space Between
+  "space-x-2",
+  "space-x-4",
+  "space-y-4",
+  
+  # Hover states
+  "hover:bg-blue-100",
+  "hover:bg-gray-200",
+  "hover:bg-indigo-600",
+  "hover:text-blue-500",
+  "hover:text-blue-600",
+  "hover:text-gray-900",
+  "hover:text-green-700",
+  "hover:text-indigo-600",
+  "hover:text-pink-400",
+  "hover:underline",
+  
+  # Focus states
+  "focus:outline-none",
+  
+  # Custom/special (defined in site.css)
+  # "body-font",
+  # "title-font",
+]
+
+max_shortcut_depth = 5
+
+[theme]
+dark_mode = "media"
+
+[theme.screens]
+sm = "640px"
+md = "768px"
+lg = "1024px"
+xl = "1280px"
+
+[theme.containers]
+
+[theme.colors]
+
+[theme.aria]
+
+[preflight.full]
+
+[shortcuts]
+
+[extra]
