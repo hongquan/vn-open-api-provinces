@@ -44,3 +44,13 @@ footer a {
 .body-font {
   font-family: "Niramit", ui-sans-serif, system-ui, sans-serif;
 }
+
+/* Links in content area */
+main a {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+main a:hover {
+  color: #3b82f6;
+}
