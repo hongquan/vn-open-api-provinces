@@ -1,5 +1,4 @@
 import os
-from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import asdict
 from operator import attrgetter
 
@@ -8,7 +7,6 @@ from fastapi.responses import FileResponse, RedirectResponse
 from fastapi_problem.error import NotFoundProblem
 from fastapi_problem.handler import add_exception_handler, new_exception_handler
 from logbook import Logger
-from unidecode import unidecode
 from vietnam_provinces import NESTED_DIVISIONS_JSON_PATH, Province, ProvinceCode, Ward, WardCode
 
 from . import __version__
