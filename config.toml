@@ -13,7 +13,6 @@ build_search_index = true
 highlight_code = true
 
 extra_syntaxes_and_themes = ["syntaxes"]
-extra_syntaxes = ["syntaxes"]
 
 [extra]
 # Put all your custom variables here
