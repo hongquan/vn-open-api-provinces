@@ -86,7 +86,7 @@ async def list_wards(
         case (p, s) if p is not None:
             search_pool = Ward.search(search)
             wards = iter(w for w in search_pool if w.province_code == province)
-        case None, s:
+        case (None, s) if s:
             wards = iter(Ward.search(s))
         case _rest:
             wards = Ward.iter_all()

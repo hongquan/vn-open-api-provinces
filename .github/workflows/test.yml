@@ -23,6 +23,6 @@ jobs:
       - name: Run Ruff linting
         run: uv run ruff check .
       - name: Run type check
-        run: uv run ty check
+        run: uv run zuban check
       - name: Run tests
         run: uv run pytest tests

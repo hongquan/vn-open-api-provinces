@@ -118,11 +118,11 @@ async def search_districts(q: str = SearchQuery, p: int | None = Query(None, tit
     if p is not None:
         try:
             pcode = ProvinceCode(p)
-            items = filter(lambda x: x.province_code == pcode, District.search(q))
+            items = tuple(filter(lambda x: x.province_code == pcode, District.search(q)))
         except ValueError:
-            items = []
+            items = ()
     else:
-        items = District.search(q)
+        items = tuple(District.search(q))
     return _make_search_results(items)
 
 
@@ -159,20 +159,20 @@ async def search_wards(
     d: int | None = Query(None, title='District code to filter'),
     p: int | None = Query(None, title='Province code to filter, ignored if district is given'),
 ):
-    items = Ward.search(q)
+    items = tuple(Ward.search(q))
     if d is not None:
         try:
             dcode = DistrictCode(d)
-            items = filter(lambda x: x.district_code == dcode, items)
+            items = tuple(filter(lambda x: x.district_code == dcode, items))
         except ValueError:
-            items = []
+            items = ()
     elif p is not None:
         try:
             pcode = ProvinceCode(p)
             dcodes = {dist.code for dist in District.iter_by_province(pcode)}
-            items = filter(lambda x: x.district_code in dcodes, items)
+            items = tuple(filter(lambda x: x.district_code in dcodes, items))
         except ValueError:
-            items = []
+            items = ()
 
     return _make_search_results(items)
 

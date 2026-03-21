@@ -22,7 +22,7 @@ dynamic = ["version"]
 dev = []
 lint = [
   "ruff >= 0.14.10",
-  "ty>=0.0.9",
+  "zuban>=0.6.2",
 ]
 test = [
   "httpx>=0.28.1",
