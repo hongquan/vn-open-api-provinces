@@ -9,12 +9,12 @@ dependencies = [
   "aiofiles >= 25.1.0",
   "fastapi-problem >= 0.12.1",
   "fastapi >= 0.129.0",
-  "granian >= 2.7.1",
   "logbook >= 1.9.2",
   "pydantic-settings >= 2.13.1",
   "pydantic >= 2.12.5",
   "uvicorn >= 0.41.0",
   "vietnam-provinces >= 2026.2.3",
+  "granian[reload]>=2.7.2",
 ]
 dynamic = ["version"]
 

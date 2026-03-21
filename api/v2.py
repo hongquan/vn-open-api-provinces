@@ -45,7 +45,7 @@ async def list_provinces(search: str = '') -> tuple[ProvinceResponse, ...]:
     if search:
         provinces = Province.search(search)
     else:
-        provinces = sorted(Province.iter_all(), key=attrgetter('code'))
+        provinces = tuple(sorted(Province.iter_all(), key=attrgetter('code')))
     return tuple(ProvinceResponse(**asdict(p)) for p in provinces)
 
 
@@ -78,11 +78,19 @@ async def list_wards(
             url = request.url.remove_query_params('province')
             logger.info('Redirect to {}', url)
             return RedirectResponse(url)
-        wards = Ward.iter_by_province(province_code)
     else:
-        wards = Ward.iter_all()
-    if search:
-        wards = Ward.search(search)
+        province_code = None
+    match province_code, search.strip():
+        case (p, '') if p is not None:
+            wards = Ward.iter_by_province(p)
+        case (p, s) if p is not None:
+            search_pool = Ward.search(search)
+            wards = iter(w for w in search_pool if w.province_code == province)
+        case None, s:
+            wards = iter(Ward.search(s))
+        case _rest:
+            wards = Ward.iter_all()
+
     return tuple(WardResponse(**asdict(p)) for p in sorted(wards, key=attrgetter('code')))
 
 
