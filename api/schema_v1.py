@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import StrEnum
 from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue
@@ -11,7 +11,7 @@ from vietnam_provinces.legacy import VietNamDivisionType
 # - FastAPI haven't supported dataclasses
 
 
-class DivisionLevel(str, Enum):
+class DivisionLevel(StrEnum):
     P = 'province'
     D = 'district'
     W = 'ward'
