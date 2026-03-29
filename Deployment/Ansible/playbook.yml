@@ -6,6 +6,10 @@
   gather_facts: true
   gather_subset:
     - "!all"
+    - "!min"
+    # Just enough to set "environment" at the end of this playbook
+    - "env"
+    - "user"
   vars:
     base_folder: /opt/Provinces/
     backend_folder: "{{ base_folder }}provinces"
