@@ -1,7 +1,7 @@
 ---
 - name: Deploy provinces.open-api.vn
   hosts: all
-  remote_user: ubuntu
+  remote_user: web
   # This is needed to make ansible_env work
   gather_facts: true
   gather_subset:

@@ -1,5 +1,5 @@
 prod:
   hosts:
     provinces.open-api.vn:
-      ansible_user: ubuntu
+      ansible_user: web
       ansible_python_interpreter: /usr/bin/python3
