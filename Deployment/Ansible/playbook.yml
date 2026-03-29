@@ -9,7 +9,7 @@
     - "!min"
     # Just enough to set "environment" at the end of this playbook
     - "env"
-    - "user"
+    - "user_dir"
   vars:
     base_folder: /opt/Provinces/
     backend_folder: "{{ base_folder }}provinces"
@@ -72,6 +72,7 @@
       ansible.builtin.systemd_service:
         name: provinces.service
         state: stopped
+      become: true
 
     - name: Install Python packages
       ansible.builtin.command: uv sync --all-extras --no-install-project
@@ -86,6 +87,7 @@
       ansible.builtin.systemd_service:
         name: provinces.service
         state: started
+      become: true
 
     - name: Build CSS
       ansible.builtin.command: encrecss build -i 'templates/*.html' -o static/css/uno.css
