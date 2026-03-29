@@ -30,7 +30,7 @@
         chdir: "{{ backend_folder }}"
       register: git_fetch
       changed_when: git_fetch.rc == 0
-      ignore_errors: yes
+      ignore_errors: true
 
     - name: Get incoming new files  # noqa command-instead-of-module
       ansible.builtin.command: git diff HEAD origin/main --name-only --diff-filter=A
@@ -52,7 +52,7 @@
         chdir: "{{ backend_folder }}"
       register: git_reset
       changed_when: git_reset.rc == 0
-      ignore_errors: yes
+      ignore_errors: true
 
     - name: Update source
       ansible.builtin.git:
@@ -64,6 +64,11 @@
         version: "main"
       register: git_out
 
+    - name: Stop provinces.service
+      ansible.builtin.systemd:
+        name: provinces.service
+        state: stopped
+
     - name: Install Python packages
       ansible.builtin.command: uv sync --all-extras --no-install-project
       args:
@@ -71,15 +76,22 @@
       register: uv_output
       changed_when: "'Audited' not in uv_output.stdout"
 
+    - name: Start provinces.service
+      ansible.builtin.systemd:
+        name: provinces.service
+        state: started
+
     - name: Build CSS
       ansible.builtin.command: encrecss build -i 'templates/*.html' -o static/css/uno.css
       args:
         chdir: '{{ backend_folder }}'
+      changed_when: false
 
     - name: Build landing page
       ansible.builtin.command: zola build
       args:
         chdir: '{{ backend_folder }}'
+      changed_when: false
 
     - name: Debug git_out
       ansible.builtin.debug:

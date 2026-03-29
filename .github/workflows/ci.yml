@@ -40,6 +40,6 @@ jobs:
       - name: Install cowsay
         run: sudo apt-get update && sudo apt-get install -y cowsay
       - name: Accept host key
-        run: ssh-keyscan -H open-api.vn >> ~/.ssh/known_hosts
+        run: ssh-keyscan -H provinces.open-api.vn >> ~/.ssh/known_hosts
       - name: Run Ansible playbook
         run: ansible-playbook -i Deployment/Ansible/inventory.yml Deployment/Ansible/playbook.yml
