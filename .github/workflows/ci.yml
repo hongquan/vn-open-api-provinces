@@ -26,3 +26,20 @@ jobs:
         run: uv run zuban check
       - name: Run tests
         run: uv run pytest tests
+
+  deploy:
+    name: Deploy
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@master
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
+      - name: Install cowsay
+        run: sudo apt-get update && sudo apt-get install -y cowsay
+      - name: Accept host key
+        run: ssh-keyscan -H open-api.vn >> ~/.ssh/known_hosts
+      - name: Run Ansible playbook
+        run: ansible-playbook -i Deployment/Ansible/inventory.yml Deployment/Ansible/playbook.yml

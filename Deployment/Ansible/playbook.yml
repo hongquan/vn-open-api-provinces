@@ -1,0 +1,89 @@
+---
+- name: Deploy provinces.open-api.vn
+  hosts: all
+  remote_user: ubuntu
+  # This is needed to make ansible_env work
+  gather_facts: true
+  gather_subset:
+    - "!all"
+  vars:
+    base_folder: /opt/Provinces/
+    backend_folder: "{{ base_folder }}provinces"
+    venv_folder: "{{ base_folder }}venv"
+    bin_folder: "{{ base_folder }}venv/bin/"
+    source_folder: "{{ playbook_dir | dirname | dirname }}"
+
+  tasks:
+    - name: Check if webapp folder exists
+      ansible.builtin.stat:
+        path: "{{ backend_folder }}"
+      register: webapp_folder_check
+
+    - name: Fail if webapp folder does not exist
+      ansible.builtin.fail:
+        msg: "Webapp folder {{ backend_folder }} does not exist. Please ensure the deployment directory is set up before running this playbook."
+      when: not webapp_folder_check.stat.exists
+
+    - name: Fetch remote updates  # noqa command-instead-of-module
+      ansible.builtin.command: git fetch origin main
+      args:
+        chdir: "{{ backend_folder }}"
+      register: git_fetch
+      changed_when: git_fetch.rc == 0
+      ignore_errors: yes
+
+    - name: Get incoming new files  # noqa command-instead-of-module
+      ansible.builtin.command: git diff HEAD origin/main --name-only --diff-filter=A
+      args:
+        chdir: "{{ backend_folder }}"
+      register: incoming_files
+      changed_when: false
+
+    - name: Delete conflicting untracked files
+      ansible.builtin.file:
+        path: "{{ backend_folder }}/{{ item }}"
+        state: absent
+      loop: "{{ incoming_files.stdout_lines }}"
+      when: incoming_files.stdout_lines | length > 0
+
+    - name: Clean source  # noqa command-instead-of-module
+      ansible.builtin.command: git reset --hard
+      args:
+        chdir: "{{ backend_folder }}"
+      register: git_reset
+      changed_when: git_reset.rc == 0
+      ignore_errors: yes
+
+    - name: Update source
+      ansible.builtin.git:
+        # Note: We need to configure host alias in ~/.ssh/config.
+        # This is needed because GitHub requires each repo a key,
+        # and our server is running muliple projects.
+        repo: "git@provinces-github:hongquan/vn-open-api-provinces.git"
+        dest: "{{ backend_folder }}"
+        version: "main"
+      register: git_out
+
+    - name: Install Python packages
+      ansible.builtin.command: uv sync --all-extras --no-install-project
+      args:
+        chdir: '{{ backend_folder }}'
+      register: uv_output
+      changed_when: "'Audited' not in uv_output.stdout"
+
+    - name: Build CSS
+      ansible.builtin.command: encrecss build -i 'templates/*.html' -o static/css/uno.css
+      args:
+        chdir: '{{ backend_folder }}'
+
+    - name: Build landing page
+      ansible.builtin.command: zola build
+      args:
+        chdir: '{{ backend_folder }}'
+
+    - name: Debug git_out
+      ansible.builtin.debug:
+        var: git_out
+
+  environment:
+    PATH: "{{ base_folder }}/venv/bin:{{ ansible_env.PATH }}:{{ ansible_facts['user_dir'] }}/.local/bin"

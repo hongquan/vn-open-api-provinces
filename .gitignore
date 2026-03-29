@@ -90,6 +90,9 @@ ENV/
 env.bak/
 venv.bak/
 
+*.pub
+*.priv.key
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -112,6 +115,7 @@ venv.bak/
 .idea
 .helix
 .aider.*
+.crush
 
 .node_modules
 node_modules
