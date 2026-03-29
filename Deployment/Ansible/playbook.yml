@@ -65,7 +65,7 @@
       register: git_out
 
     - name: Stop provinces.service
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: provinces.service
         state: stopped
 
@@ -75,9 +75,11 @@
         chdir: '{{ backend_folder }}'
       register: uv_output
       changed_when: "'Audited' not in uv_output.stdout"
+      environment:
+        UV_PROJECT_ENVIRONMENT: '{{ venv_folder }}'
 
     - name: Start provinces.service
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: provinces.service
         state: started
 
