@@ -125,18 +125,18 @@ async def test_get_legacy_wards_tan_hai(async_client: AsyncClient):
     """Test that get_legacy_wards for Phường Tân Hải returns correct legacy wards."""
     # First, we need to find which new ward code corresponds to the legacy wards 26707 and 26710
     # Let's test both new ward codes that might contain these legacy wards
-    
+
     # Test ward code 26707
     res = await async_client.get('/api/v2/w/26707/to-legacies/')
     if res.status_code == HTTPStatus.OK:
         legacy_wards = msgspec.json.decode(res.content, type=tuple[LegacyWardResponse, ...])
         # Check if this returns the expected legacy wards
-        
-    # Test ward code 26710  
+
+    # Test ward code 26710
     res = await async_client.get('/api/v2/w/26710/to-legacies/')
     assert res.status_code == HTTPStatus.OK, res.text
     legacy_wards = msgspec.json.decode(res.content, type=tuple[LegacyWardResponse, ...])
-    
+
     # Should return legacy wards including those with codes 26707 and 26710
     assert len(legacy_wards) >= 1
 
@@ -156,6 +156,6 @@ async def test_lookup_from_legacy_ward_by_name(async_client: AsyncClient):
     assert res.status_code == HTTPStatus.OK, res.text
     # Validate response structure with msgspec
     wards = msgspec.json.decode(res.content, type=tuple[WardWithLegacySourceResponse, ...])
-    
+
     # Should return results
     assert len(wards) >= 0  # Allow for empty results but should not fail

@@ -49,12 +49,14 @@ class WardResponse(Ward):
 @dataclass(frozen=True, config=ConfigDict(json_schema_extra={'examples': [_EXAMPLE_WARD_WITH_LEGACY]}))
 class WardWithLegacySource:
     """Ward response with legacy source code."""
+
     source_code: int
     ward: WardResponse
 
 
 class LegacyWardResponse(BaseModel):
     """Response model for legacy ward information."""
+
     model_config = ConfigDict(json_schema_extra={'examples': [_EXAMPLE_LEGACY_WARD]})
     name: str
     code: int

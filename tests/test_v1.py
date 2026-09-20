@@ -1,6 +1,5 @@
-from http import HTTPStatus
-
 from collections.abc import AsyncGenerator
+from http import HTTPStatus
 
 import pytest
 from httpx import ASGITransport, AsyncClient
