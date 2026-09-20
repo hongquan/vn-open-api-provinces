@@ -46,7 +46,7 @@ async def async_client():
 
 
 @pytest.mark.asyncio
-async def test_provinces(async_client):
+async def test_provinces(async_client: AsyncClient):
     res = await async_client.get('/api/v2/p/')
     assert res.status_code == HTTPStatus.OK, res.text
     data = res.json()
@@ -57,7 +57,7 @@ async def test_provinces(async_client):
 
 
 @pytest.mark.asyncio
-async def test_get_province(async_client):
+async def test_get_province(async_client: AsyncClient):
     res = await async_client.get('/api/v2/p/1')
     assert res.status_code == HTTPStatus.OK, res.text
     # Validate response structure with msgspec
@@ -65,7 +65,7 @@ async def test_get_province(async_client):
 
 
 @pytest.mark.asyncio
-async def test_search_provinces(async_client):
+async def test_search_provinces(async_client: AsyncClient):
     res = await async_client.get('/api/v2/p/?search=Hà Nội')
     assert res.status_code == HTTPStatus.OK, res.text
     # Validate response structure with msgspec
@@ -74,7 +74,7 @@ async def test_search_provinces(async_client):
 
 
 @pytest.mark.asyncio
-async def test_wards(async_client):
+async def test_wards(async_client: AsyncClient):
     res = await async_client.get('/api/v2/w/')
     assert res.status_code == HTTPStatus.OK, res.text
     # Validate response structure with msgspec
@@ -83,7 +83,7 @@ async def test_wards(async_client):
 
 
 @pytest.mark.asyncio
-async def test_get_ward(async_client):
+async def test_get_ward(async_client: AsyncClient):
     # Use a valid ward code that exists - let's find a valid one first
     res = await async_client.get('/api/v2/w/')
     assert res.status_code == HTTPStatus.OK, res.text
@@ -99,7 +99,7 @@ async def test_get_ward(async_client):
 
 
 @pytest.mark.asyncio
-async def test_search_wards(async_client):
+async def test_search_wards(async_client: AsyncClient):
     res = await async_client.get('/api/v2/w/?search=Phúc Xá')
     assert res.status_code == HTTPStatus.OK, res.text
     # Validate response structure with msgspec
@@ -108,7 +108,7 @@ async def test_search_wards(async_client):
 
 
 @pytest.mark.asyncio
-async def test_get_legacy_wards(async_client):
+async def test_get_legacy_wards(async_client: AsyncClient):
     """Test that get_legacy_wards returns correct legacy wards for a given ward code."""
     # Test with a known ward that has legacy sources
     res = await async_client.get('/api/v2/w/4/to-legacies/')  # Phường Ba Đình
@@ -121,7 +121,7 @@ async def test_get_legacy_wards(async_client):
 
 
 @pytest.mark.asyncio
-async def test_get_legacy_wards_tan_hai(async_client):
+async def test_get_legacy_wards_tan_hai(async_client: AsyncClient):
     """Test that get_legacy_wards for Phường Tân Hải returns correct legacy wards."""
     # First, we need to find which new ward code corresponds to the legacy wards 26707 and 26710
     # Let's test both new ward codes that might contain these legacy wards
@@ -142,14 +142,14 @@ async def test_get_legacy_wards_tan_hai(async_client):
 
 
 @pytest.mark.asyncio
-async def test_get_legacy_wards_invalid_code(async_client):
+async def test_get_legacy_wards_invalid_code(async_client: AsyncClient):
     """Test that get_legacy_wards returns 404 for invalid ward code."""
     res = await async_client.get('/api/v2/w/999999/to-legacies/')
     assert res.status_code == HTTPStatus.NOT_FOUND, res.text
 
 
 @pytest.mark.asyncio
-async def test_lookup_from_legacy_ward_by_name(async_client):
+async def test_lookup_from_legacy_ward_by_name(async_client: AsyncClient):
     """Test that lookup_from_legacy_ward returns correct wards when searching by legacy name."""
     # Test with a known legacy ward name that should return results
     res = await async_client.get('/api/v2/w/from-legacy/?legacy_name=Ba Đình')

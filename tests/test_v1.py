@@ -1,5 +1,7 @@
 from http import HTTPStatus
 
+from collections.abc import AsyncGenerator
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 
@@ -7,14 +9,14 @@ from api.main import app
 
 
 @pytest.fixture
-async def async_client():
+async def async_client() -> AsyncGenerator[AsyncClient, None]:
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url='http://testServer') as client:
         yield client
 
 
 @pytest.mark.asyncio
-async def test_provinces(async_client):
+async def test_provinces(async_client: AsyncClient):
     res = await async_client.get('/api/v1/p/')
     assert res.status_code == HTTPStatus.OK, res.text
     data = res.json()
@@ -23,56 +25,56 @@ async def test_provinces(async_client):
 
 
 @pytest.mark.asyncio
-async def test_get_province(async_client):
+async def test_get_province(async_client: AsyncClient):
     res = await async_client.get('/api/v1/p/1')
     assert res.status_code == HTTPStatus.OK, res.text
     assert res.json()['code'] == 1
 
 
 @pytest.mark.asyncio
-async def test_search_provinces(async_client):
+async def test_search_provinces(async_client: AsyncClient):
     res = await async_client.get('/api/v1/p/search/?q=Hà Nội')
     assert res.status_code == HTTPStatus.OK, res.text
     assert len(res.json()) > 0
 
 
 @pytest.mark.asyncio
-async def test_districts(async_client):
+async def test_districts(async_client: AsyncClient):
     res = await async_client.get('/api/v1/d/')
     assert res.status_code == HTTPStatus.OK, res.text
     assert len(res.json()) > 0
 
 
 @pytest.mark.asyncio
-async def test_get_district(async_client):
+async def test_get_district(async_client: AsyncClient):
     res = await async_client.get('/api/v1/d/1')
     assert res.status_code == HTTPStatus.OK, res.text
     assert res.json()['code'] == 1
 
 
 @pytest.mark.asyncio
-async def test_search_districts(async_client):
+async def test_search_districts(async_client: AsyncClient):
     res = await async_client.get('/api/v1/d/search/?q=Hoàn Kiếm')
     assert res.status_code == HTTPStatus.OK, res.text
     assert len(res.json()) > 0
 
 
 @pytest.mark.asyncio
-async def test_wards(async_client):
+async def test_wards(async_client: AsyncClient):
     res = await async_client.get('/api/v1/w/')
     assert res.status_code == HTTPStatus.OK, res.text
     assert len(res.json()) > 0
 
 
 @pytest.mark.asyncio
-async def test_get_ward(async_client):
+async def test_get_ward(async_client: AsyncClient):
     res = await async_client.get('/api/v1/w/1')
     assert res.status_code == HTTPStatus.OK, res.text
     assert res.json()['code'] == 1
 
 
 @pytest.mark.asyncio
-async def test_search_wards(async_client):
+async def test_search_wards(async_client: AsyncClient):
     res = await async_client.get('/api/v1/w/search/?q=Phúc Xá')
     assert res.status_code == HTTPStatus.OK, res.text
     assert len(res.json()) > 0
