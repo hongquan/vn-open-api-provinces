@@ -14,7 +14,7 @@ dependencies = [
   "pydantic >= 2.12.5",
   "uvicorn >= 0.41.0",
   "vietnam-provinces >= 2026.3.0",
-  "granian[reload]>=2.7.2",
+  "granian[reload]>=2.8.3",
 ]
 dynamic = ["version"]
 
@@ -22,13 +22,13 @@ dynamic = ["version"]
 dev = []
 lint = [
   "ruff >= 0.15.8",
-  "zuban>=0.6.2",
+  "zuban>=0.10.0",
 ]
 test = [
   "httpx>=0.28.1",
-  "msgspec>=0.20.0",
-  "pytest>=9.0.2",
-  "pytest-asyncio>=1.3.0",
+  "msgspec>=0.21.1",
+  "pytest>=9.1.1",
+  "pytest-asyncio>=1.4.0",
 ]
 
 [build-system]
